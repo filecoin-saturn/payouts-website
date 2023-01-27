@@ -9,7 +9,7 @@
 	<br>
 </h1>
 
-> Repo for an interface for our PaymentSplitter Contract
+> Repo for interfaces to interact with our Smart Contract
 
 
 ## What is this 
