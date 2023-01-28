@@ -8,6 +8,7 @@ import {
 import { Signer } from 'ethers';
 
 import Abi from '../abi.json';
+import { ContractErrorMessage } from '../types';
 
 declare global {
     interface Window {
@@ -18,7 +19,7 @@ declare global {
 const HYPER_SAPCE_RPC_URL = 'https://api.hyperspace.node.glif.io/rpc/v0';
 const HYPERSPACE_CHAINID = 3141;
 
-const CONTRACT_ADDRESS = '0x905e7497a9d5688d2f8d6a07505985245f5846eA';
+const CONTRACT_ADDRESS = '0xe4c8A5E97268bee3223d8c0f641C2fC262120B44';
 const CONTRACT_OPTS = {
     gasLimit: 1000000000,
 };
@@ -57,36 +58,55 @@ export async function getContract(signer?: Signer): Promise<Contract> {
 }
 
 export async function readUserInfo(contract: Contract, address: string) {
-    const shares = await contract.shares(address, CONTRACT_OPTS);
-    // .catch((error) => console.log(error));
+    let info;
 
-    const released = await contract.released(address, CONTRACT_OPTS);
-    // .catch((error) => console.log(error));
+    try {
+        const shares = await contract.shares(address, CONTRACT_OPTS);
+        const released = await contract.released(address, CONTRACT_OPTS);
+        const releasable = await contract.releasable(address, CONTRACT_OPTS);
 
-    const releasable = await contract.releasable(address, CONTRACT_OPTS);
-    // .catch((error) => console.log(error));
+        const userInfo = {
+            shares,
+            releasable,
+            released,
+        };
 
-    const userInfo = {
-        shares,
-        releasable,
-        released,
-    };
+        Object.keys(userInfo).map((key) => {
+            const value = userInfo[key as keyof typeof userInfo];
+            userInfo[key as keyof typeof userInfo] = parseHexObject(
+                value,
+                true
+            );
+        });
+        info = userInfo;
+    } catch (error: unknown) {
+        let cause;
+        if (error instanceof Error) {
+            cause = error.message;
+        }
+        throw new Error(ContractErrorMessage.READ_CONTRACT, {
+            cause,
+        });
+    }
 
-    Object.keys(userInfo).map((key) => {
-        const value = userInfo[key as keyof typeof userInfo];
-        userInfo[key as keyof typeof userInfo] = parseHexObject(value, true);
-    });
-
-    return userInfo;
+    return info;
 }
 
 export async function releasePayout(contract: Contract, address: string) {
-    const release = await contract.release(address, CONTRACT_OPTS);
-    // .catch((callError) => console.log(callError));
+    let transactionReceipt;
+    try {
+        const release = await contract.release(address, CONTRACT_OPTS);
 
-    const transactionReceipt = await release.wait();
-    // .catch((receiptError) => console.log(receiptError));
-
+        transactionReceipt = await release.wait();
+    } catch (error: unknown) {
+        let cause;
+        if (error instanceof Error) {
+            cause = error.message;
+        }
+        throw new Error(ContractErrorMessage.TRANSACTION, {
+            cause,
+        });
+    }
     return transactionReceipt;
 }
 
