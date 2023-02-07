@@ -112,9 +112,7 @@ const FundRelease = (props: UserInfo) => {
     );
 
     const connectButton = (
-        <Button onClick={() => connectWallet()} isDisabled={!userOutOfFunds}>
-            Connect Wallet
-        </Button>
+        <Button onClick={() => connectWallet()}>Connect Wallet</Button>
     );
     const walletButton = walletConnected ? connectedButton : connectButton;
 

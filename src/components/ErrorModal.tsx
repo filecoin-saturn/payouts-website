@@ -10,9 +10,7 @@ import {
     useDisclosure,
 } from '@chakra-ui/react';
 
-import { ContractErrorMessage } from '../types';
-
-const ErrorModal = () => {
+const ErrorModal = (props: Error) => {
     const { onOpen, onClose } = useDisclosure();
 
     return (
@@ -22,13 +20,12 @@ const ErrorModal = () => {
                 <ModalContent>
                     <ModalHeader>Error</ModalHeader>
                     <ModalCloseButton />
-                    <ModalBody> Error Message </ModalBody>
+                    <ModalBody> {props.message} </ModalBody>
 
                     <ModalFooter>
                         <Button colorScheme="blue" mr={3} onClick={onClose}>
                             Close
                         </Button>
-                        <Button variant="ghost">Secondary Action</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>

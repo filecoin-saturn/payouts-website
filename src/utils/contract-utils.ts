@@ -7,7 +7,7 @@ import {
 } from '@ethersproject/providers';
 import { Signer } from 'ethers';
 
-import Abi from '../abi.json';
+import Abi from '../factoryAbi.json';
 import { ContractErrorMessage } from '../types';
 
 declare global {
@@ -16,15 +16,24 @@ declare global {
     }
 }
 
-const HYPER_SAPCE_RPC_URL = 'https://api.hyperspace.node.glif.io/rpc/v0';
-const HYPERSPACE_CHAINID = 3141;
+// const RPC_URL = 'https://api.hyperspace.node.glif.io/rpc/v0';
+// const CHAIN_ID = 3141;
 
-const CONTRACT_ADDRESS = '0xe4c8A5E97268bee3223d8c0f641C2fC262120B44';
+// const CONTRACT_ADDRESS = '0x3Cfd761Ae56f87205A4c22F06bFCd2B8a224c0d7';
+// const CONTRACT_OPTS = {
+//     gasLimit: 1000000000,
+// };
+// const ATTO_FIL = 10 ** 18;
+
+const RPC_URL = 'http://127.0.0.1:8545';
+const CHAIN_ID = 31337;
+
+const CONTRACT_ADDRESS = '0xb7f8bc63bbcad18155201308c8f3540b07f84f5e';
 const CONTRACT_OPTS = {
-    gasLimit: 1000000000,
+    gasLimit: 10000000,
 };
 
-const ATTO_FIL = 10 ** 18;
+const ATTO_FIL = 1;
 
 interface HexResponse {
     _hex: string;
@@ -41,10 +50,7 @@ function parseHexObject(response: HexResponse, convertToFil: boolean): string {
 
 export async function getContract(signer?: Signer): Promise<Contract> {
     const contractAbi = JSON.stringify(Abi);
-    const readOnlyProvider = new JsonRpcProvider(
-        HYPER_SAPCE_RPC_URL,
-        HYPERSPACE_CHAINID
-    );
+    const readOnlyProvider = new JsonRpcProvider(RPC_URL, CHAIN_ID);
 
     const contractSigner = signer ? signer : readOnlyProvider;
 
@@ -95,7 +101,7 @@ export async function readUserInfo(contract: Contract, address: string) {
 export async function releasePayout(contract: Contract, address: string) {
     let transactionReceipt;
     try {
-        const release = await contract.release(address, CONTRACT_OPTS);
+        const release = await contract.releaseAll(address, CONTRACT_OPTS);
 
         transactionReceipt = await release.wait();
     } catch (error: unknown) {

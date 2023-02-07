@@ -14,6 +14,7 @@ import { isAddress } from 'ethers/lib/utils';
 import { useEffect, useState } from 'react';
 import { FormEvent } from 'react';
 
+import ErrorModal from './components/ErrorModal';
 import FundRelease from './components/FundRelease';
 import { UserInfo } from './types';
 import { getContract, readUserInfo } from './utils/contract-utils';
@@ -26,6 +27,8 @@ function App() {
     const [userInfo, updateUserInfo] = useState<UserInfo | undefined>(
         undefined
     );
+
+    const [error, updateErrorStatus] = useState<Error | undefined>(undefined);
 
     const onAddressChange = (event: FormEvent<HTMLInputElement>) => {
         event.preventDefault();
@@ -70,9 +73,11 @@ function App() {
         />
     );
     const renderSpinner = isLoading ? spinner : null;
+    const errorModal = error ? <ErrorModal {...error} /> : null;
 
     const addressForm = (
         <Card variant={'outline'} padding={'2%'}>
+            {errorModal}
             <CardBody filter="auto" blur={renderSpinner ? '2px' : 'none'}>
                 <Box width={'md'}>
                     <FormControl isRequired>
