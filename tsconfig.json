@@ -20,6 +20,6 @@
     "src/",
     "node_modules/@types"
   ],
-  "include": ["src"],
+  "include": ["src", "renderer", "pages"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
