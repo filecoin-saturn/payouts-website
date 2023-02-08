@@ -1,5 +1,14 @@
+import { WarningIcon } from '@chakra-ui/icons';
 import {
+    Accordion,
+    AccordionButton,
+    AccordionIcon,
+    AccordionItem,
+    AccordionPanel,
     Button,
+    Code,
+    Heading,
+    HStack,
     Modal,
     ModalBody,
     ModalCloseButton,
@@ -7,23 +16,62 @@ import {
     ModalFooter,
     ModalHeader,
     ModalOverlay,
-    useDisclosure,
+    Text,
 } from '@chakra-ui/react';
 
-const ErrorModal = (props: Error) => {
-    const { onOpen, onClose } = useDisclosure();
+interface ErrorModalProps {
+    error: Error;
+    modalOpen: boolean;
+}
+
+const ErrorModal = (props: ErrorModalProps) => {
+    const error = props.error;
+    let errorCause = '';
+    if (error.cause) {
+        errorCause = error.cause as string;
+    }
 
     return (
         <>
-            <Modal isOpen onClose={onClose}>
+            <Modal
+                isOpen={props.modalOpen}
+                onClose={() => window.location.reload()}
+            >
                 <ModalOverlay />
                 <ModalContent>
-                    <ModalHeader>Error</ModalHeader>
+                    <ModalHeader>
+                        <HStack>
+                            <Heading size={'lg'}> Error </Heading>
+                            <WarningIcon w={8} h={8} color={'red.600'} />
+                        </HStack>
+                    </ModalHeader>
                     <ModalCloseButton />
-                    <ModalBody> {props.message} </ModalBody>
+                    <ModalBody>
+                        <Accordion defaultIndex={[0]} allowMultiple>
+                            <AccordionItem>
+                                <h2>
+                                    <AccordionButton>
+                                        <Text>{error.message}</Text>
+                                    </AccordionButton>
+                                </h2>
+                            </AccordionItem>
+
+                            <AccordionItem>
+                                <h2>
+                                    <AccordionButton>
+                                        View Original Message
+                                        <AccordionIcon />
+                                    </AccordionButton>
+                                </h2>
+                                <AccordionPanel pb={4}>
+                                    <Code>{errorCause}</Code>
+                                </AccordionPanel>
+                            </AccordionItem>
+                        </Accordion>
+                    </ModalBody>
 
                     <ModalFooter>
-                        <Button colorScheme="blue" mr={3} onClick={onClose}>
+                        <Button mr={3} onClick={() => window.location.reload()}>
                             Close
                         </Button>
                     </ModalFooter>
