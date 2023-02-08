@@ -77,7 +77,6 @@ function WalletForm() {
         />
     );
     const renderSpinner = isLoading ? spinner : null;
-    console.log(error);
     const errorModal = error ? <ErrorModal error={error} modalOpen /> : null;
 
     const addressForm = (

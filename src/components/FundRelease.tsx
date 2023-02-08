@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { JsonRpcSigner } from '@ethersproject/providers';
 import { Contract } from 'ethers';
+import React from 'react';
 import { useEffect, useState } from 'react';
 
 import { UserInfo } from '../types';
@@ -27,6 +28,7 @@ import {
     releasePayout,
     walletProvider,
 } from '../utils/contract-utils';
+import ErrorModal from './ErrorModal';
 
 enum FundStates {
     initiated = 'initiated',
@@ -37,7 +39,7 @@ const FundRelease = (props: UserInfo) => {
     const [walletConnected, setWalletConnect] = useState<boolean>(false);
     const [signer, setSigner] = useState<JsonRpcSigner | null>(null);
     const [contract, setContract] = useState<Contract | null>(null);
-
+    const [error, setErrorState] = useState<Error | null>(null);
     const [fundsStatus, setfundsStatus] = useState<FundStates | undefined>(
         undefined
     );
@@ -54,10 +56,15 @@ const FundRelease = (props: UserInfo) => {
     };
 
     const releaseFunds = async () => {
+        console.log(contract);
         if (contract) {
             setfundsStatus(FundStates.initiated);
-            await releasePayout(contract, props.address);
-            setfundsStatus(FundStates.released);
+            try {
+                await releasePayout(contract, props.address);
+                setfundsStatus(FundStates.released);
+            } catch (error) {
+                if (error instanceof Error) return setErrorState(error);
+            }
         }
         return;
     };
@@ -74,13 +81,19 @@ const FundRelease = (props: UserInfo) => {
         }
         if (signer) {
             (async () => {
-                const contract = await getContract(signer);
-                setContract(contract);
+                try {
+                    const contract = await getContract(signer);
+                    setContract(contract);
+                } catch (error) {
+                    if (error instanceof Error) setErrorState(error);
+                }
             })();
         }
         return;
     }, [signer]);
 
+    const errorModal = error ? <ErrorModal error={error} modalOpen /> : null;
+    console.log(fundsStatus);
     const userStats = (
         <StatGroup>
             <Stat>
@@ -178,6 +191,7 @@ const FundRelease = (props: UserInfo) => {
                     </CardBody>
                 </Card>
                 {status}
+                {errorModal}
             </Center>
         </Box>
     );

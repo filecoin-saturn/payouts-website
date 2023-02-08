@@ -7,7 +7,7 @@ import {
 } from '@ethersproject/providers';
 import { Signer } from 'ethers';
 
-import Abi from '../factoryAbi.json';
+import Abi from '../abi.json';
 import { ContractErrorMessage } from '../types';
 
 declare global {
@@ -28,7 +28,7 @@ declare global {
 const RPC_URL = 'http://127.0.0.1:8545';
 const CHAIN_ID = 31337;
 
-const CONTRACT_ADDRESS = '0xb7f8bc63bbcad18155201308c8f3540b07f84f5e';
+const CONTRACT_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
 const CONTRACT_OPTS = {
     gasLimit: 10000000,
 };
@@ -102,7 +102,6 @@ export async function releasePayout(contract: Contract, address: string) {
     let transactionReceipt;
     try {
         const release = await contract.releaseAll(address, CONTRACT_OPTS);
-
         transactionReceipt = await release.wait();
     } catch (error: unknown) {
         let cause;
