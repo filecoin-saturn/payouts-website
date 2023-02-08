@@ -15,7 +15,8 @@
     "ethers": "^5.7.2",
     "framer-motion": "^8.5.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "vite-plugin-ssr": "^0.4.77"
   },
   "devDependencies": {
     "@types/react": "^18.0.26",
