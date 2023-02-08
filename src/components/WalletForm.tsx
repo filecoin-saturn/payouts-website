@@ -14,13 +14,14 @@ import { isAddress } from 'ethers/lib/utils';
 import { useEffect, useState } from 'react';
 import { FormEvent } from 'react';
 
-import ErrorModal from './components/ErrorModal';
-import FundRelease from './components/FundRelease';
-import { UserInfo } from './types';
-import { getContract, readUserInfo } from './utils/contract-utils';
+import { UserInfo } from '../types';
+import { getContract, readUserInfo } from '../utils/contract-utils';
+import ErrorModal from './ErrorModal';
+import FundRelease from './FundRelease';
+
 // 0xe058CfF7D4eA8B3d0B2682D7c76035988fb4A7b5
 
-function App() {
+function WalletForm() {
     const [userAddress, setUserAddress] = useState<string>('');
 
     const [isLoading, setLoading] = useState<boolean>(false);
@@ -28,7 +29,7 @@ function App() {
         undefined
     );
 
-    const [error, updateErrorStatus] = useState<Error | undefined>(undefined);
+    const [error, setErrorState] = useState<Error | undefined>(undefined);
 
     const onAddressChange = (event: FormEvent<HTMLInputElement>) => {
         event.preventDefault();
@@ -44,16 +45,19 @@ function App() {
         event.preventDefault();
         setLoading(true);
         const contract: Contract = await getContract();
-
-        const contractInfoRes = await readUserInfo(contract, userAddress);
-        const info: UserInfo = {
-            address: userAddress,
-            ...contractInfoRes,
-        };
-
-        console.log(info);
-
-        return updateUserInfo(info);
+        try {
+            const contractInfoRes = await readUserInfo(contract, userAddress);
+            const info: UserInfo = {
+                address: userAddress,
+                ...contractInfoRes,
+            };
+            updateUserInfo(info);
+        } catch (error) {
+            if (error instanceof Error) {
+                setErrorState(error);
+            }
+        }
+        return;
     };
 
     useEffect(() => {
@@ -73,7 +77,8 @@ function App() {
         />
     );
     const renderSpinner = isLoading ? spinner : null;
-    const errorModal = error ? <ErrorModal {...error} /> : null;
+    console.log(error);
+    const errorModal = error ? <ErrorModal error={error} modalOpen /> : null;
 
     const addressForm = (
         <Card variant={'outline'} padding={'2%'}>
@@ -108,4 +113,4 @@ function App() {
     );
 }
 
-export default App;
+export default WalletForm;
