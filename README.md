@@ -30,5 +30,5 @@ To install Node and `npm`, [this](https://github.com/nvm-sh/nvm) is a great tool
   npm run dev
 </pre>
 
-Proceed to `http://http://localhost:5173/` to view start interacting with the interace. 
+Proceed to `http://http://localhost:3000/` to view start interacting with the interace. 
 
