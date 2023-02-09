@@ -85,7 +85,9 @@ function WalletForm() {
             <CardBody filter="auto" blur={renderSpinner ? '2px' : 'none'}>
                 <Box width={'md'}>
                     <FormControl isRequired>
-                        <FormLabel> Wallet Address</FormLabel>
+                        <FormLabel aria-label="Wallet Address">
+                            Wallet Address
+                        </FormLabel>
                         <Input
                             onChange={onAddressChange}
                             placeholder="Filecoin Address"
