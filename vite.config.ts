@@ -9,4 +9,7 @@ export default defineConfig({
         setupFiles: './test/setup.ts',
         globals: true,
     },
+    define: {
+        'process.env': process.env,
+    },
 });

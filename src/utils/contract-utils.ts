@@ -5,10 +5,15 @@ import {
     JsonRpcProvider,
     Web3Provider,
 } from '@ethersproject/providers';
-import { Signer } from 'ethers';
+import { ethers, Signer } from 'ethers';
 
 import Abi from '../abi.json';
-import { ContractErrorMessage } from '../types';
+import {
+    ContractError,
+    NetworkError,
+    ProviderErrorCodes,
+    ProviderRpcError,
+} from '../types';
 
 declare global {
     interface Window {
@@ -16,29 +21,26 @@ declare global {
     }
 }
 
-// const RPC_URL = 'https://api.hyperspace.node.glif.io/rpc/v0';
-// const CHAIN_ID = 3141;
+const env = import.meta.env;
+const RPC_URL = env.VITE_RPC_URL;
+const CHAIN_ID = parseInt(env.VITE_CHAIN_ID as string);
+const FACTORY_ADDRESS = env.VITE_FACTORY_ADDRESS;
+const CHAIN_NAME = env.VITE_CHAIN_NAME;
+const CHAIN_DECIMALS = parseInt(env.VITE_CHAIN_DECIMALS as string);
+const CHAIN_SYMBOL = env.VITE_CHAIN_SYMBOL;
 
-// const CONTRACT_ADDRESS = '0x3Cfd761Ae56f87205A4c22F06bFCd2B8a224c0d7';
-// const CONTRACT_OPTS = {
-//     gasLimit: 1000000000,
-// };
-// const ATTO_FIL = 10 ** 18;
-
-const RPC_URL = 'http://127.0.0.1:8545';
-const CHAIN_ID = 31337;
-
-const CONTRACT_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3';
 const CONTRACT_OPTS = {
     gasLimit: 10000000,
 };
-
+// const ATTO_FIL = 10 ** 18;
 const ATTO_FIL = 1;
 
 interface HexResponse {
     _hex: string;
     _isBigNumber: boolean;
 }
+
+console.log(env);
 
 function parseHexObject(response: HexResponse, convertToFil: boolean): string {
     const value = Number(response._hex);
@@ -55,7 +57,7 @@ export async function getContract(signer?: Signer): Promise<Contract> {
     const contractSigner = signer ? signer : readOnlyProvider;
 
     const contract = await new Contract(
-        CONTRACT_ADDRESS,
+        FACTORY_ADDRESS as string,
         contractAbi,
         contractSigner
     );
@@ -90,7 +92,7 @@ export async function readUserInfo(contract: Contract, address: string) {
         if (error instanceof Error) {
             cause = error.message;
         }
-        throw new Error(ContractErrorMessage.READ_CONTRACT, {
+        throw new Error(ContractError.READ_CONTRACT, {
             cause,
         });
     }
@@ -108,7 +110,7 @@ export async function releasePayout(contract: Contract, address: string) {
         if (error instanceof Error) {
             cause = error.message;
         }
-        throw new Error(ContractErrorMessage.TRANSACTION, {
+        throw new Error(ContractError.TRANSACTION, {
             cause,
         });
     }
@@ -130,4 +132,66 @@ export const isMetaMaskConnected = async () => {
     const provider = new Web3Provider(window.ethereum);
     const accounts = await provider.listAccounts();
     return accounts.length > 0;
+};
+
+const addNetwork = async () => {
+    const network = window.ethereum as any;
+
+    try {
+        await network.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+                {
+                    chainName: CHAIN_NAME,
+                    chainId: ethers.utils.hexlify(CHAIN_ID),
+                    nativeCurrency: {
+                        name: CHAIN_SYMBOL,
+                        decimals: CHAIN_DECIMALS,
+                        symbol: CHAIN_SYMBOL,
+                    },
+                    rpcUrls: [RPC_URL],
+                },
+            ],
+        });
+    } catch (error) {
+        let cause;
+        if (error instanceof Error) {
+            cause = error.message;
+        }
+        throw new Error(NetworkError.CONNECTION_ERROR, {
+            cause,
+        });
+    }
+};
+
+function instanceOfProviderError(object: any): object is ProviderRpcError {
+    return object.message && object.code;
+}
+
+export const switchNetwork = async () => {
+    const network = window.ethereum as any;
+    if (network.networkVersion == CHAIN_ID) {
+        return;
+    }
+    try {
+        await network.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: ethers.utils.hexlify(CHAIN_ID) }],
+        });
+    } catch (error) {
+        if (
+            instanceOfProviderError(error) &&
+            error.code == ProviderErrorCodes.CHAIN_DISCONNECTED
+        ) {
+            return await addNetwork();
+        }
+        let cause;
+        if (error instanceof Error) {
+            cause = error.message;
+        }
+        throw new Error(NetworkError.CONNECTION_ERROR, {
+            cause,
+        });
+    }
+    return;
 };

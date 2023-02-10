@@ -26,9 +26,12 @@ import {
     getContract,
     isMetaMaskConnected,
     releasePayout,
+    switchNetwork,
     walletProvider,
 } from '../utils/contract-utils';
 import ErrorModal from './ErrorModal';
+
+const CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
 
 enum FundStates {
     initiated = 'initiated',
@@ -47,6 +50,7 @@ const FundRelease = (props: UserInfo) => {
     const userOutOfFunds = parseFloat(props.releasable) === 0;
 
     const connectWallet = async () => {
+        await switchNetwork();
         const walletSigner = await walletProvider();
         if (!walletConnected) {
             setWalletConnect(true);

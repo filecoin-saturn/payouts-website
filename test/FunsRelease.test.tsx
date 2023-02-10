@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 const mockFuncs = {
     isMetaMaskConnected: vi.fn(() => Promise.resolve(true)),
     walletProvider: vi.fn(() => Promise.resolve({})),
+    switchNetwork: vi.fn(() => Promise.resolve({})),
 };
 import FundRelease from '../src/components/FundRelease';
 import { UserInfo } from '../src/types';
