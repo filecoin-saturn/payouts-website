@@ -50,10 +50,7 @@ const FundRelease = (props: UserInfo) => {
     const userOutOfFunds = parseFloat(props.releasable) === 0;
 
     const connectWallet = async () => {
-        const network = window.ethereum as any;
-        if (network.networkVersion !== CHAIN_ID) {
-            await switchNetwork();
-        }
+        await switchNetwork();
         const walletSigner = await walletProvider();
         if (!walletConnected) {
             setWalletConnect(true);

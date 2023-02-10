@@ -170,6 +170,9 @@ function instanceOfProviderError(object: any): object is ProviderRpcError {
 
 export const switchNetwork = async () => {
     const network = window.ethereum as any;
+    if (network.networkVersion == CHAIN_ID) {
+        return;
+    }
     try {
         await network.request({
             method: 'wallet_switchEthereumChain',
