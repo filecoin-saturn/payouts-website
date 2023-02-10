@@ -10,6 +10,7 @@ const mockFuncs = {
     getContract: vi.fn(() => Promise.resolve({})),
     isMetaMaskConnected: vi.fn(() => Promise.resolve(true)),
     walletProvider: vi.fn(() => Promise.resolve({})),
+    switchNetwork: vi.fn(() => Promise.resolve({})),
 };
 import { describe, expect, it, vi } from 'vitest';
 
