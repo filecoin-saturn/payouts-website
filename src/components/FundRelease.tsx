@@ -31,8 +31,6 @@ import {
 } from '../utils/contract-utils';
 import ErrorModal from './ErrorModal';
 
-const CHAIN_ID = import.meta.env.VITE_CHAIN_ID;
-
 enum FundStates {
     initiated = 'initiated',
     released = 'released',
@@ -97,7 +95,6 @@ const FundRelease = (props: UserInfo) => {
     }, [signer]);
 
     const errorModal = error ? <ErrorModal error={error} modalOpen /> : null;
-    console.log(fundsStatus);
     const userStats = (
         <StatGroup>
             <Stat>
