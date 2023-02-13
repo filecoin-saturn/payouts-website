@@ -1,10 +1,10 @@
 import { Contract } from '@ethersproject/contracts';
 import {
     ExternalProvider,
-    JsonRpcFetchFunc,
     JsonRpcProvider,
     Web3Provider,
 } from '@ethersproject/providers';
+import type { Ethereum } from '@wagmi/connectors';
 import { ethers, Signer } from 'ethers';
 
 import Abi from '../abi.json';
@@ -17,7 +17,7 @@ import {
 
 declare global {
     interface Window {
-        ethereum?: any;
+        ethereum?: Ethereum;
     }
 }
 
