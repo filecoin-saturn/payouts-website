@@ -1,10 +1,10 @@
 import { Contract } from '@ethersproject/contracts';
 import {
     ExternalProvider,
-    JsonRpcFetchFunc,
     JsonRpcProvider,
     Web3Provider,
 } from '@ethersproject/providers';
+import type { Ethereum } from '@wagmi/connectors';
 import { ethers, Signer } from 'ethers';
 
 import Abi from '../abi.json';
@@ -17,7 +17,7 @@ import {
 
 declare global {
     interface Window {
-        ethereum: ExternalProvider | JsonRpcFetchFunc;
+        ethereum?: Ethereum;
     }
 }
 
@@ -35,14 +35,17 @@ const CONTRACT_OPTS = {
 // const ATTO_FIL = 10 ** 18;
 const ATTO_FIL = 1;
 
-interface HexResponse {
+export interface HexResponse {
     _hex: string;
     _isBigNumber: boolean;
 }
 
 console.log(env);
 
-function parseHexObject(response: HexResponse, convertToFil: boolean): string {
+export function parseHexObject(
+    response: HexResponse,
+    convertToFil: boolean
+): string {
     const value = Number(response._hex);
     if (convertToFil) {
         return (value / ATTO_FIL).toFixed(8).replace(/0+$/, '');
@@ -118,7 +121,7 @@ export async function releasePayout(contract: Contract, address: string) {
 }
 
 export async function walletProvider() {
-    const provider = new Web3Provider(window.ethereum);
+    const provider = new Web3Provider(window.ethereum as ExternalProvider);
 
     try {
         await provider.send('eth_requestAccounts', []);
@@ -129,7 +132,7 @@ export async function walletProvider() {
 }
 
 export const isMetaMaskConnected = async () => {
-    const provider = new Web3Provider(window.ethereum);
+    const provider = new Web3Provider(window.ethereum as ExternalProvider);
     const accounts = await provider.listAccounts();
     return accounts.length > 0;
 };

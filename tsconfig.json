@@ -21,6 +21,6 @@
     "src/",
     "node_modules/@types"
   ],
-  "include": ["src", "renderer", "pages"],
+  "include": ["src", "renderer", "pages", "pollyfills.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
