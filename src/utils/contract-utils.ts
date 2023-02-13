@@ -17,7 +17,7 @@ import {
 
 declare global {
     interface Window {
-        ethereum?: ExternalProvider | JsonRpcFetchFunc;
+        ethereum?: any;
     }
 }
 
