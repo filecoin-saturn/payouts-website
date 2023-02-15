@@ -18,24 +18,49 @@ import {
     Text,
     VStack,
 } from '@chakra-ui/react';
-import { Connector, useContractReads, useDisconnect } from 'wagmi';
+import { useState } from 'react';
+import {
+    Connector,
+    useContractReads,
+    useContractWrite,
+    UseContractWriteConfig,
+    useDisconnect,
+    usePrepareContractWrite,
+} from 'wagmi';
 
 import { HexResponse, parseHexObject } from '../utils/contract-utils';
-import { getUserInfo, truncateEthAddress } from '../utils/wagmi-utils';
+import {
+    getRelease,
+    getUserInfo,
+    truncateEthAddress,
+} from '../utils/wagmi-utils';
 
 const UserDashboard = (props: { address: string; connector: Connector }) => {
+    // const [test, setTest] = useState(0);
+    const { disconnect } = useDisconnect();
+
     const address = props.address;
     const connector = props.connector;
     const contractFuncs = address && (getUserInfo(address) as any);
-    const { data, isLoading, error } = useContractReads({
+    const { data, isLoading, isFetching, error } = useContractReads({
         contracts: contractFuncs,
     });
+    const { config } = usePrepareContractWrite(getRelease(address) as object);
+
+    const {
+        data: writeData,
+        isLoading: contractLoading,
+        isSuccess,
+        write,
+    } = useContractWrite({
+        ...(config as UseContractWriteConfig),
+    });
+
+    console.log(writeData);
 
     const userInfo = data?.map((item) =>
         parseHexObject(item as HexResponse, true)
     );
-    console.log(userInfo);
-    const { disconnect } = useDisconnect();
 
     const loadingSkeleton = (
         <Stack>
@@ -100,7 +125,7 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
                     <CardBody>
                         {isLoading ? loadingSkeleton : stats}
 
-                        <Button> Release Funds </Button>
+                        <Button onClick={() => write?.()}>Release Funds</Button>
                     </CardBody>
                 </CardHeader>
             </Card>

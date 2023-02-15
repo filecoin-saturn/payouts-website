@@ -11,7 +11,10 @@ import contractAbi from '../abi.json';
 const env = import.meta.env;
 const FACTORY_ADDRESS = env.VITE_FACTORY_ADDRESS;
 
-const localChains = [localhost, filecoinHyperspace];
+// Hacky way to make the localhost chain properties writable.
+const localhostChain = JSON.parse(JSON.stringify(localhost));
+localhostChain.id = parseInt(import.meta.env.VITE_CHAIN_ID);
+const localChains = [localhostChain, filecoinHyperspace];
 const productionChains = [filecoin, filecoinHyperspace];
 const supportedChains = (
     env.VITE_LOCAL ? localChains : productionChains
@@ -55,6 +58,14 @@ export const factoryContract = {
     address: FACTORY_ADDRESS,
     abi: contractAbi,
 };
+
+export function getRelease(address: string) {
+    return {
+        ...factoryContract,
+        functionName: 'releaseAll',
+        args: [address],
+    };
+}
 
 export function getUserInfo(address: string) {
     const functionReads: Array<object> = [];
