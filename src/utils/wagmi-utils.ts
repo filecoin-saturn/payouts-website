@@ -7,6 +7,7 @@ import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { publicProvider } from 'wagmi/providers/public';
 
 import contractAbi from '../abi.json';
+import { HexResponse, parseHexObject } from './contract-utils';
 
 const env = import.meta.env;
 const FACTORY_ADDRESS = env.VITE_FACTORY_ADDRESS;
@@ -67,10 +68,48 @@ export function getRelease(address: string) {
     };
 }
 
+interface ContractItem {
+    address: string;
+    funds: string;
+    checked: boolean;
+}
+
+export function formatReadContractResponse(data: Array<any>) {
+    const statArray = data
+        ?.slice(0, 3)
+        .map((item) => parseHexObject(item as HexResponse, true));
+    const releasedContracts = [];
+    const releasableContracts: Record<string, ContractItem> = {};
+
+    const stats = {
+        released: statArray[0],
+        shares: statArray[1],
+        releasable: statArray[2],
+    };
+
+    const [contracts, funds] = data[3];
+    contracts.forEach((address: string, idx: number) => {
+        const contractFunds = parseHexObject(funds[idx], true);
+        const contractItem: ContractItem = {
+            address,
+            funds: contractFunds,
+            checked: false,
+        };
+        releasableContracts[address as keyof typeof releasableContracts] =
+            contractItem;
+    });
+    return { stats, releasableContracts };
+}
+
 export function getUserInfo(address: string) {
     const functionReads: Array<object> = [];
 
-    const functionsToRead = ['released', 'shares', 'releasable'];
+    const functionsToRead = [
+        'released',
+        'shares',
+        'releasable',
+        'releasablePerContract',
+    ];
 
     functionsToRead.forEach((name) => {
         functionReads.push({

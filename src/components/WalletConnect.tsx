@@ -49,7 +49,7 @@ function Profile() {
                 rounded="md"
                 spacing="8"
             >
-                <Heading color={'whiteAlpha.900'}>Sign in with wallet</Heading>
+                <Heading color={'whiteAlpha.900'}>Connect wallet</Heading>
 
                 {connectors.map((connector) => (
                     <Button

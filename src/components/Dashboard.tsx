@@ -18,7 +18,6 @@ import {
     Text,
     VStack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
 import {
     Connector,
     useContractReads,
@@ -28,23 +27,26 @@ import {
     usePrepareContractWrite,
 } from 'wagmi';
 
-import { HexResponse, parseHexObject } from '../utils/contract-utils';
 import {
+    formatReadContractResponse,
     getRelease,
     getUserInfo,
     truncateEthAddress,
 } from '../utils/wagmi-utils';
+import DataTable from './DataTable';
 
 const UserDashboard = (props: { address: string; connector: Connector }) => {
-    // const [test, setTest] = useState(0);
     const { disconnect } = useDisconnect();
 
     const address = props.address;
     const connector = props.connector;
     const contractFuncs = address && (getUserInfo(address) as any);
+
     const { data, isLoading, isFetching, error } = useContractReads({
         contracts: contractFuncs,
+        select: (data) => formatReadContractResponse(data),
     });
+
     const { config } = usePrepareContractWrite(getRelease(address) as object);
 
     const {
@@ -54,13 +56,10 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
         write,
     } = useContractWrite({
         ...(config as UseContractWriteConfig),
+        onSettled() {
+            window.location.reload();
+        },
     });
-
-    console.log(writeData);
-
-    const userInfo = data?.map((item) =>
-        parseHexObject(item as HexResponse, true)
-    );
 
     const loadingSkeleton = (
         <Stack>
@@ -88,22 +87,22 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
         </>
     );
 
-    const stats = userInfo && (
+    const stats = data && (
         <StatGroup mb={5}>
             <Stat>
                 <StatLabel>Released</StatLabel>
-                <StatNumber>{userInfo[0]} FIL</StatNumber>
-                <StatHelpText>Total Shares</StatHelpText>
+                <StatNumber>{data.stats.released} FIL</StatNumber>
+                <StatHelpText>Total released funds</StatHelpText>
             </Stat>
             <Stat>
                 <StatLabel>Shares</StatLabel>
-                <StatNumber> {userInfo[1]} FIL </StatNumber>
-                <StatHelpText>Total Released</StatHelpText>
+                <StatNumber> {data.stats.shares} FIL </StatNumber>
+                <StatHelpText>Total shares</StatHelpText>
             </Stat>
             <Stat>
                 <StatLabel>Releasable</StatLabel>
-                <StatNumber> {userInfo[2]} FIL </StatNumber>
-                <StatHelpText>Remaining Shares</StatHelpText>
+                <StatNumber> {data.stats.releasable} FIL </StatNumber>
+                <StatHelpText>Remaining unreleased funds</StatHelpText>
             </Stat>
         </StatGroup>
     );
@@ -125,7 +124,17 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
                     <CardBody>
                         {isLoading ? loadingSkeleton : stats}
 
-                        <Button onClick={() => write?.()}>Release Funds</Button>
+                        <Button
+                            isLoading={contractLoading}
+                            isDisabled={
+                                !data || parseFloat(data.stats.releasable) === 0
+                            }
+                            onClick={() => write?.()}
+                        >
+                            Release Funds
+                        </Button>
+
+                        <DataTable contracts={data?.releasableContracts} />
                     </CardBody>
                 </CardHeader>
             </Card>
