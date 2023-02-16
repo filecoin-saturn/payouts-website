@@ -41,13 +41,13 @@ describe('FundRelease component', () => {
         expect(connectedWalletButton).toBeInTheDocument();
     });
 
-    it('should render a "Release Funds" button when the wallet is connected', async () => {
+    it('should render a "Release All Funds" button when the wallet is connected', async () => {
         render(<FundRelease {...userInfo} />);
         const connectWalletButton = screen.getByText(/Connect Wallet/i);
         await act(async () => {
             await connectWalletButton.click();
         });
-        const releaseFundsButton = screen.getByText(/Release Funds/i);
+        const releaseFundsButton = screen.getByText(/Release All Funds/i);
         expect(releaseFundsButton).toBeInTheDocument();
     });
 
@@ -57,7 +57,7 @@ describe('FundRelease component', () => {
         await act(async () => {
             await connectWalletButton.click();
         });
-        const releaseFundsButton = screen.getByText(/Release Funds/i);
+        const releaseFundsButton = screen.getByText(/Release All Funds/i);
         await act(async () => {
             await releaseFundsButton.click();
         });
