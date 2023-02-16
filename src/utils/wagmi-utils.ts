@@ -7,8 +7,8 @@ import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { publicProvider } from 'wagmi/providers/public';
 
 import contractAbi from '../abi.json';
+import { ContractItem, DashboardContracts } from '../types';
 import { HexResponse, parseHexObject } from './contract-utils';
-
 const env = import.meta.env;
 const FACTORY_ADDRESS = env.VITE_FACTORY_ADDRESS;
 
@@ -68,18 +68,12 @@ export function getRelease(address: string) {
     };
 }
 
-interface ContractItem {
-    address: string;
-    funds: string;
-    checked: boolean;
-}
-
 export function formatReadContractResponse(data: Array<any>) {
     const statArray = data
         ?.slice(0, 3)
         .map((item) => parseHexObject(item as HexResponse, true));
-    const releasedContracts: Record<string, ContractItem> = {};
-    const releasableContracts: Record<string, ContractItem> = {};
+    const releasedContracts: DashboardContracts = {};
+    const releasableContracts: DashboardContracts = {};
 
     const stats = {
         released: statArray[0],
@@ -97,10 +91,10 @@ export function formatReadContractResponse(data: Array<any>) {
         };
         if (parseFloat(contractFunds) === 0) {
             contractItem.funds = parseHexObject(released[idx], true);
-            releasedContracts[address as keyof typeof releasedContracts] =
+            releasedContracts[address as keyof DashboardContracts] =
                 contractItem;
         } else {
-            releasableContracts[address as keyof typeof releasableContracts] =
+            releasableContracts[address as keyof DashboardContracts] =
                 contractItem;
         }
     });

@@ -24,3 +24,10 @@ export interface ProviderRpcError extends Error {
 export enum ProviderErrorCodes {
     CHAIN_DISCONNECTED = 4902,
 }
+
+export type DashboardContracts = Record<string, ContractItem>;
+export interface ContractItem {
+    address: string;
+    funds: string;
+    checked: boolean;
+}

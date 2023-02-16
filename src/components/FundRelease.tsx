@@ -135,7 +135,7 @@ const FundRelease = (props: UserInfo) => {
             isDisabled={userOutOfFunds || !walletConnected}
             onClick={() => releaseFunds()}
         >
-            Release Funds
+            Release All Funds
         </Button>
     );
 

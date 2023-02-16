@@ -134,8 +134,9 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
                         </Button>
 
                         <DataTable
-                            contracts={data?.releasableContracts}
-                            releasedContracts={data?.releasedContracts}
+                            contracts={data?.releasableContracts || {}}
+                            releasedContracts={data?.releasedContracts || {}}
+                            address={address}
                         />
                     </CardBody>
                 </CardHeader>

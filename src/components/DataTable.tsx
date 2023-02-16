@@ -13,10 +13,20 @@ import {
     Tr,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import {
+    useContractWrite,
+    UseContractWriteConfig,
+    usePrepareContractWrite,
+} from 'wagmi';
 
-import { truncateEthAddress } from '../utils/wagmi-utils';
+import { ContractItem, DashboardContracts } from '../types';
+import { factoryContract, truncateEthAddress } from '../utils/wagmi-utils';
 
-const DataTable = (props: { contracts?: any; releasedContracts?: any }) => {
+const DataTable = (props: {
+    contracts: DashboardContracts;
+    releasedContracts: DashboardContracts;
+    address: string;
+}) => {
     const [contracts, setContracts] = useState(props.contracts);
 
     useEffect(() => {
@@ -25,10 +35,14 @@ const DataTable = (props: { contracts?: any; releasedContracts?: any }) => {
 
     const allChecked =
         contracts &&
-        Object.values(contracts).every((contract: any) => contract.checked);
+        Object.values(contracts).every(
+            (contract: ContractItem) => contract.checked
+        );
     const isIndeterminate =
         contracts &&
-        Object.values(contracts).some((contract: any) => contract.checked) &&
+        Object.values(contracts).some(
+            (contract: ContractItem) => contract.checked
+        ) &&
         !allChecked;
     const changeState = (address: string) => {
         const newState = !contracts[address].checked;
@@ -45,27 +59,49 @@ const DataTable = (props: { contracts?: any; releasedContracts?: any }) => {
 
         setContracts({ ...contracts });
     };
-    const releasableTableRows =
-        contracts &&
-        Object.keys(contracts).map((address) => {
-            const contract = contracts[address];
-            return (
-                <Tr key={address}>
-                    <Td>
-                        {' '}
-                        <Checkbox
-                            size={'lg'}
-                            isChecked={contract.checked}
-                            onChange={() => changeState(address)}
-                        ></Checkbox>
-                    </Td>
-                    <Td>{truncateEthAddress(address)}</Td>
-                    <Td isNumeric>{contract.funds}</Td>
-                </Tr>
-            );
-        });
 
-    const contractsTable = contracts && (
+    const selectedContracts =
+        contracts &&
+        Object.values(contracts).filter((item: ContractItem) => item.checked);
+    const writeArgs = [
+        props.address,
+        selectedContracts.map((item: ContractItem) => item.address),
+    ];
+
+    const { config } = usePrepareContractWrite({
+        ...factoryContract,
+        functionName: 'releaseSelect',
+        args: writeArgs,
+    });
+
+    const { data, isLoading, isSuccess, write } = useContractWrite({
+        ...(config as UseContractWriteConfig),
+        onSettled() {
+            window.location.reload();
+        },
+    });
+
+    console.log(config);
+
+    const releasableTableRows = Object.keys(contracts).map((address) => {
+        const contract = contracts[address];
+        return (
+            <Tr key={address}>
+                <Td>
+                    {' '}
+                    <Checkbox
+                        size={'lg'}
+                        isChecked={contract.checked}
+                        onChange={() => changeState(address)}
+                    ></Checkbox>
+                </Td>
+                <Td>{truncateEthAddress(address)}</Td>
+                <Td isNumeric>{contract.funds}</Td>
+            </Tr>
+        );
+    });
+
+    const contractsTable = (
         <Table variant="striped">
             <Thead>
                 <Tr>
@@ -86,26 +122,32 @@ const DataTable = (props: { contracts?: any; releasedContracts?: any }) => {
             <Tbody>{releasableTableRows}</Tbody>
 
             <Tfoot>
-                <Button isDisabled={!allChecked && !isIndeterminate} mt={4}>
-                    Release Selected
-                </Button>
+                <Tr>
+                    <Td>
+                        <Button
+                            isDisabled={!allChecked && !isIndeterminate}
+                            onClick={() => write?.()}
+                            mt={4}
+                        >
+                            Release Selected
+                        </Button>
+                    </Td>
+                </Tr>
             </Tfoot>
         </Table>
     );
     const releasedContracts = props.releasedContracts;
-    const releasedTableRows =
-        releasedContracts &&
-        Object.keys(releasedContracts).map((address) => {
-            const contract = releasedContracts[address];
-            return (
-                <Tr key={address}>
-                    <Td>{truncateEthAddress(address)}</Td>
-                    <Td isNumeric>{contract.funds}</Td>
-                </Tr>
-            );
-        });
+    const releasedTableRows = Object.keys(releasedContracts).map((address) => {
+        const contract = releasedContracts[address];
+        return (
+            <Tr key={address}>
+                <Td>{truncateEthAddress(address)}</Td>
+                <Td isNumeric>{contract.funds}</Td>
+            </Tr>
+        );
+    });
 
-    const releasedContractsTable = releasedTableRows && (
+    const releasedContractsTable = (
         <Table variant="striped">
             <Thead>
                 <Tr>
