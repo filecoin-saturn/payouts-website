@@ -78,7 +78,7 @@ export function formatReadContractResponse(data: Array<any>) {
     const statArray = data
         ?.slice(0, 3)
         .map((item) => parseHexObject(item as HexResponse, true));
-    const releasedContracts = [];
+    const releasedContracts: Record<string, ContractItem> = {};
     const releasableContracts: Record<string, ContractItem> = {};
 
     const stats = {
@@ -87,18 +87,24 @@ export function formatReadContractResponse(data: Array<any>) {
         releasable: statArray[2],
     };
 
-    const [contracts, funds] = data[3];
+    const [contracts, releasable, released] = data[3];
     contracts.forEach((address: string, idx: number) => {
-        const contractFunds = parseHexObject(funds[idx], true);
+        const contractFunds = parseHexObject(releasable[idx], true);
         const contractItem: ContractItem = {
             address,
             funds: contractFunds,
             checked: false,
         };
-        releasableContracts[address as keyof typeof releasableContracts] =
-            contractItem;
+        if (parseFloat(contractFunds) === 0) {
+            contractItem.funds = parseHexObject(released[idx], true);
+            releasedContracts[address as keyof typeof releasedContracts] =
+                contractItem;
+        } else {
+            releasableContracts[address as keyof typeof releasableContracts] =
+                contractItem;
+        }
     });
-    return { stats, releasableContracts };
+    return { stats, releasableContracts, releasedContracts };
 }
 
 export function getUserInfo(address: string) {

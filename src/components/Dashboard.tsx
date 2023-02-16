@@ -106,7 +106,6 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
             </Stat>
         </StatGroup>
     );
-
     return (
         <Center>
             <Card w="100%" maxW={'1200px'} p="4">
@@ -134,7 +133,10 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
                             Release Funds
                         </Button>
 
-                        <DataTable contracts={data?.releasableContracts} />
+                        <DataTable
+                            contracts={data?.releasableContracts}
+                            releasedContracts={data?.releasedContracts}
+                        />
                     </CardBody>
                 </CardHeader>
             </Card>
