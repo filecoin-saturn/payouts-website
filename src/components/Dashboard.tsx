@@ -130,7 +130,7 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
                             }
                             onClick={() => write?.()}
                         >
-                            Release Funds
+                            Release All Funds
                         </Button>
 
                         <DataTable
