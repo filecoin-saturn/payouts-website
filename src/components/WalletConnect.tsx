@@ -11,9 +11,8 @@ import { Connector, useConnect } from 'wagmi';
 
 import { switchNetwork } from '../utils/contract-utils';
 function Profile() {
-    const { connect, connectors, error, isLoading, pendingConnector } =
+    const { connect, connectors, error, isLoading, pendingConnector, status } =
         useConnect();
-
     const toast = useToast();
 
     const userConnect = async (connector: Connector) => {
@@ -67,7 +66,7 @@ function Profile() {
                     >
                         {connector.name}
                         {!connector.ready}
-                        {isLoading && connector.id === pendingConnector?.id}
+                        {isLoading}
                     </Button>
                 ))}
             </VStack>

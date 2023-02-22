@@ -19,7 +19,7 @@ import {
     usePrepareContractWrite,
 } from 'wagmi';
 
-import { ContractItem, DashboardContracts } from '../types';
+import { ContractError, ContractItem, DashboardContracts } from '../types';
 import { factoryContract, truncateEthAddress } from '../utils/wagmi-utils';
 
 const DataTable = (props: {
@@ -28,6 +28,7 @@ const DataTable = (props: {
     address: string;
 }) => {
     const [contracts, setContracts] = useState(props.contracts);
+    const [txLoading, setTxLoading] = useState(false);
 
     useEffect(() => {
         setContracts({ ...props.contracts });
@@ -76,12 +77,29 @@ const DataTable = (props: {
 
     const { data, isLoading, isSuccess, write } = useContractWrite({
         ...(config as UseContractWriteConfig),
-        onSettled() {
-            window.location.reload();
+        async onSettled(data) {
+            try {
+                await data?.wait();
+                setTxLoading(false);
+                window.location.reload();
+            } catch (error) {
+                let cause;
+                if (error instanceof Error) {
+                    cause = error.message;
+                }
+                throw new Error(ContractError.TRANSACTION, {
+                    cause,
+                });
+            }
         },
     });
 
-    console.log(config);
+    const writeContract = () => {
+        if (write) {
+            setTxLoading(true);
+            write();
+        }
+    };
 
     const releasableTableRows = Object.keys(contracts).map((address) => {
         const contract = contracts[address];
@@ -126,7 +144,9 @@ const DataTable = (props: {
                     <Td>
                         <Button
                             isDisabled={!allChecked && !isIndeterminate}
-                            onClick={() => write?.()}
+                            onClick={() => writeContract()}
+                            isLoading={txLoading}
+                            loadingText="Sending Transactions"
                             mt={4}
                         >
                             Release Selected

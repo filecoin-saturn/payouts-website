@@ -12,12 +12,12 @@ import {
     Stack,
     Stat,
     StatGroup,
-    StatHelpText,
     StatLabel,
     StatNumber,
     Text,
     VStack,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import {
     Connector,
     useContractReads,
@@ -27,6 +27,7 @@ import {
     usePrepareContractWrite,
 } from 'wagmi';
 
+import { ContractError } from '../types';
 import {
     formatReadContractResponse,
     getRelease,
@@ -49,6 +50,8 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
 
     const { config } = usePrepareContractWrite(getRelease(address) as object);
 
+    const [txLoading, setTxLoading] = useState(false);
+
     const {
         data: writeData,
         isLoading: contractLoading,
@@ -56,10 +59,29 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
         write,
     } = useContractWrite({
         ...(config as UseContractWriteConfig),
-        onSettled() {
-            window.location.reload();
+        async onSettled(data) {
+            try {
+                await data?.wait();
+                setTxLoading(false);
+                window.location.reload();
+            } catch (error) {
+                let cause;
+                if (error instanceof Error) {
+                    cause = error.message;
+                }
+                throw new Error(ContractError.TRANSACTION, {
+                    cause,
+                });
+            }
         },
     });
+
+    const writeContract = () => {
+        if (write) {
+            setTxLoading(true);
+            write();
+        }
+    };
 
     const loadingSkeleton = (
         <Stack>
@@ -90,25 +112,28 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
     const stats = data && (
         <StatGroup mb={5}>
             <Stat>
-                <StatLabel>Released</StatLabel>
-                <StatNumber>{data.stats.released} FIL</StatNumber>
-                <StatHelpText>Total released funds</StatHelpText>
-            </Stat>
-            <Stat>
-                <StatLabel>Shares</StatLabel>
+                <StatLabel>
+                    <Heading size="sm"> Total Earnings</Heading>
+                </StatLabel>
                 <StatNumber> {data.stats.shares} FIL </StatNumber>
-                <StatHelpText>Total shares</StatHelpText>
             </Stat>
             <Stat>
-                <StatLabel>Releasable</StatLabel>
+                <StatLabel>
+                    <Heading size="sm"> Released Earnings</Heading>
+                </StatLabel>
+                <StatNumber>{data.stats.released} FIL</StatNumber>
+            </Stat>
+            <Stat>
+                <StatLabel>
+                    <Heading size="sm"> Claimable Earnings</Heading>
+                </StatLabel>
                 <StatNumber> {data.stats.releasable} FIL </StatNumber>
-                <StatHelpText>Remaining unreleased funds</StatHelpText>
             </Stat>
         </StatGroup>
     );
     return (
         <Center>
-            <Card w="100%" maxW={'1200px'} p="4">
+            <Card w="100%" maxW={'1200px'} p="4" mb={6}>
                 <CardHeader w="100%">
                     <Stack
                         mt={5}
@@ -124,11 +149,11 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
                         {isLoading ? loadingSkeleton : stats}
 
                         <Button
-                            isLoading={contractLoading}
+                            isLoading={txLoading || contractLoading}
                             isDisabled={
                                 !data || parseFloat(data.stats.releasable) === 0
                             }
-                            onClick={() => write?.()}
+                            onClick={() => writeContract()}
                         >
                             Release All Funds
                         </Button>
