@@ -18,7 +18,7 @@ localhostChain.id = parseInt(import.meta.env.VITE_CHAIN_ID);
 const localChains = [localhostChain, filecoinHyperspace];
 const productionChains = [filecoin, filecoinHyperspace];
 const supportedChains = (
-    env.VITE_LOCAL ? localChains : productionChains
+    env.VITE_PRODUCTION ? productionChains : localChains
 ) as Array<Chain>;
 
 const { chains, provider, webSocketProvider } = configureChains(
