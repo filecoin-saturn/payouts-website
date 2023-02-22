@@ -1,4 +1,3 @@
-import vercelSsr from '@magne4000/vite-plugin-vercel-ssr';
 import react from '@vitejs/plugin-react';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import ssr from 'vite-plugin-ssr/plugin';
@@ -12,7 +11,6 @@ export default defineConfig({
             // Whether to polyfill `node:` protocol imports.
             protocolImports: true,
         }),
-        vercelSsr(),
     ],
     test: {
         environment: 'jsdom',
