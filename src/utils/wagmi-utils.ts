@@ -14,7 +14,9 @@ const FACTORY_ADDRESS = env.VITE_FACTORY_ADDRESS;
 
 // Hacky way to make the localhost chain properties writable.
 const localhostChain = JSON.parse(JSON.stringify(localhost));
-localhostChain.id = parseInt(import.meta.env.VITE_CHAIN_ID);
+if (!env.VITE_PRODUCTION) {
+    localhostChain.id = parseInt(import.meta.env.VITE_CHAIN_ID);
+}
 const localChains = [localhostChain, filecoinHyperspace];
 const productionChains = [filecoin, filecoinHyperspace];
 const supportedChains = (

@@ -40,8 +40,6 @@ export interface HexResponse {
     _isBigNumber: boolean;
 }
 
-console.log(env);
-
 export function parseHexObject(
     response: HexResponse,
     convertToFil: boolean
@@ -146,7 +144,7 @@ const addNetwork = async () => {
             params: [
                 {
                     chainName: CHAIN_NAME,
-                    chainId: ethers.utils.hexlify(CHAIN_ID),
+                    chainId: ethers.utils.hexValue(CHAIN_ID),
                     nativeCurrency: {
                         name: CHAIN_SYMBOL,
                         decimals: CHAIN_DECIMALS,
@@ -179,7 +177,7 @@ export const switchNetwork = async () => {
     try {
         await network.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: ethers.utils.hexlify(CHAIN_ID) }],
+            params: [{ chainId: ethers.utils.hexValue(CHAIN_ID) }],
         });
     } catch (error) {
         if (
