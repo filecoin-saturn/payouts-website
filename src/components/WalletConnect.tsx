@@ -10,13 +10,17 @@ import { useEffect } from 'react';
 import { Connector, useConnect } from 'wagmi';
 
 import { switchNetwork } from '../utils/contract-utils';
+const env = import.meta.env;
+
 function Profile() {
     const { connect, connectors, error, isLoading, pendingConnector, status } =
-        useConnect();
+        useConnect({
+            chainId: parseInt(env.VITE_CHAIN_ID),
+        });
     const toast = useToast();
 
     const userConnect = async (connector: Connector) => {
-        if (window.ethereum) {
+        if (window.ethereum && env.SWITCH) {
             await switchNetwork();
         }
         connect({ connector });
