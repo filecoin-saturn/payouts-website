@@ -44,7 +44,7 @@ function Profile() {
     });
 
     return (
-        <Center w="100%" h="80%">
+        <Center w="100%" h="100vh">
             <VStack
                 maxWidth={'800px'}
                 backgroundColor={'whiteAlpha.200'}

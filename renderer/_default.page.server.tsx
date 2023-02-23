@@ -21,9 +21,7 @@ async function render(pageContext: PageContextServer) {
     const { documentProps } = pageContext.exports;
     const title =
         (documentProps && documentProps.title) || 'Contract Inferface';
-    const desc =
-        (documentProps && documentProps.description) ||
-        'App using Vite + vite-plugin-ssr';
+    const desc = (documentProps && documentProps.description) || 'Cassini';
 
     const documentHtml = escapeInject`<!DOCTYPE html>
     <html lang="en">
@@ -33,7 +31,7 @@ async function render(pageContext: PageContextServer) {
         <meta name="description" content="${desc}" />
         <title>${title}</title>
       </head>
-      <body>
+      <body style="background-color:black;">
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
       </body>
     </html>`;
