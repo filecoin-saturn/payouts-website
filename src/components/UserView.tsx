@@ -1,15 +1,28 @@
 import { Box, Image } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
 
 import saturnLogo from '../assets/SaturnLogoWithWord.png';
+import AddressChangeForm from './AddressChangeForm';
 import UserDashboard from './Dashboard';
 import LoadingPage from './LoadingPage';
 import WalletConnect from './WalletConnect';
+
+const CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID);
+
 const UserView = () => {
     const [firstLoad, setFirstLoad] = useState(false);
-    const { address, connector, isConnected, isConnecting, status } =
-        useAccount();
+    const { address, connector, isConnected, status } = useAccount();
+    const { chain } = useNetwork();
+    const { switchNetwork } = useSwitchNetwork();
+
+    useEffect(() => {
+        if (chain) {
+            if (chain.id !== CHAIN_ID) {
+                switchNetwork?.(CHAIN_ID);
+            }
+        }
+    }, [address, chain]);
 
     useEffect(() => {
         if (!firstLoad && status !== 'connecting') {
@@ -20,7 +33,7 @@ const UserView = () => {
     if (!firstLoad) {
         view = <LoadingPage />;
     } else if (isConnected && address && connector) {
-        view = <UserDashboard address={address} connector={connector} />;
+        view = <AddressChangeForm address={address} connector={connector} />;
     } else {
         view = <WalletConnect />;
     }
