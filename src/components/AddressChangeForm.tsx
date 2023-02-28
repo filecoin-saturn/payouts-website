@@ -3,7 +3,6 @@ import {
     Box,
     Button,
     ButtonGroup,
-    Center,
     Divider,
     FormControl,
     FormErrorMessage,
@@ -17,7 +16,6 @@ import {
     ModalFooter,
     ModalHeader,
     ModalOverlay,
-    Spinner,
     Text,
 } from '@chakra-ui/react';
 import { isAddress } from 'ethers/lib/utils';
@@ -26,7 +24,6 @@ import { FormEvent } from 'react';
 import { Connector } from 'wagmi';
 
 import { truncateEthAddress } from '../utils/wagmi-utils';
-import UserDashboard from './Dashboard';
 
 // 0xe058CfF7D4eA8B3d0B2682D7c76035988fb4A7b5
 
@@ -41,6 +38,11 @@ function WalletForm(props: { address: string; connector: Connector }) {
     );
 
     const [submitted, setSubmitted] = useState<boolean>(false);
+
+    if (userAddress && submitted) {
+        const dashboardUrl = encodeURI(`dashboard/${userAddress}`);
+        window.location.href = dashboardUrl;
+    }
 
     const onAddressChange = (event: FormEvent<HTMLInputElement>) => {
         event.preventDefault();
@@ -144,7 +146,7 @@ function WalletForm(props: { address: string; connector: Connector }) {
         </>
     );
 
-    const addressForm = (
+    return (
         <Modal isOpen size={'4xl'} onClose={() => console.log('form close')}>
             <ModalOverlay />
             <ModalContent padding={5}>
@@ -158,15 +160,6 @@ function WalletForm(props: { address: string; connector: Connector }) {
             </ModalContent>
         </Modal>
     );
-
-    const render =
-        submitted && userAddress ? (
-            <UserDashboard address={userAddress} connector={props.connector} />
-        ) : (
-            addressForm
-        );
-
-    return <>{render}</>;
 }
 
 export default WalletForm;

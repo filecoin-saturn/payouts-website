@@ -75,7 +75,7 @@ const DataTable = (props: {
         args: writeArgs,
     });
 
-    const { data, isLoading, isSuccess, write } = useContractWrite({
+    const { write } = useContractWrite({
         ...(config as UseContractWriteConfig),
         async onSettled(data) {
             try {
