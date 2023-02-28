@@ -17,10 +17,11 @@ import {
     Text,
     VStack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-    Connector,
+    useAccount,
     useContractReads,
+    UseContractReadsConfig,
     useContractWrite,
     UseContractWriteConfig,
     useDisconnect,
@@ -36,14 +37,22 @@ import {
 } from '../utils/wagmi-utils';
 import DataTable from './DataTable';
 
-const UserDashboard = (props: { address: string; connector: Connector }) => {
+const UserDashboard = (props: { address: string }) => {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     const { disconnect } = useDisconnect();
 
     const address = props.address;
-    const connector = props.connector;
+    const { connector, status } = useAccount();
+    if (status === 'disconnected') {
+        window.location.href = '/connect';
+    }
     const contractFuncs = address && (getUserInfo(address) as any);
-
-    const { data, isLoading, isFetching, error } = useContractReads({
+    const { data, isLoading } = useContractReads({
         contracts: contractFuncs,
         select: (data) => formatReadContractResponse(data),
     });
@@ -55,7 +64,6 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
     const {
         data: writeData,
         isLoading: contractLoading,
-        isSuccess,
         write,
     } = useContractWrite({
         ...(config as UseContractWriteConfig),
@@ -131,6 +139,10 @@ const UserDashboard = (props: { address: string; connector: Connector }) => {
             </Stat>
         </StatGroup>
     );
+
+    if (!mounted) {
+        return null;
+    }
     return (
         <Center>
             <Card w="100%" maxW={'1200px'} p="4" mb={6}>

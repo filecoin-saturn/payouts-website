@@ -1,5 +1,5 @@
-import WalletForm from '../src/components/WalletForm';
+import UserView from '../src/components/UserView';
 export { Page };
 function Page() {
-    return <WalletForm />;
+    return <UserView />;
 }

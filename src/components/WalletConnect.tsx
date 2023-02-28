@@ -12,8 +12,8 @@ import { Connector, useConnect } from 'wagmi';
 import { switchNetwork } from '../utils/contract-utils';
 const env = import.meta.env;
 
-function Profile() {
-    const { connect, connectors, error, isLoading, pendingConnector, status } =
+const WalletConnect = () => {
+    const { connect, connectors, error, isLoading, pendingConnector } =
         useConnect({
             chainId: parseInt(env.VITE_CHAIN_ID),
         });
@@ -76,9 +76,6 @@ function Profile() {
             </VStack>
         </Center>
     );
-}
+};
 
-// Pass client to React Context Provider
-export default function WalletConnect() {
-    return <Profile />;
-}
+export default WalletConnect;

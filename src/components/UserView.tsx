@@ -4,7 +4,6 @@ import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
 
 import saturnLogo from '../assets/SaturnLogoWithWord.png';
 import AddressChangeForm from './AddressChangeForm';
-import UserDashboard from './Dashboard';
 import LoadingPage from './LoadingPage';
 import WalletConnect from './WalletConnect';
 
@@ -29,6 +28,7 @@ const UserView = () => {
             setFirstLoad(true);
         }
     }, [status]);
+
     let view;
     if (!firstLoad) {
         view = <LoadingPage />;
