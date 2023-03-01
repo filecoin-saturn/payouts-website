@@ -32,8 +32,8 @@ const CHAIN_SYMBOL = env.VITE_CHAIN_SYMBOL;
 const CONTRACT_OPTS = {
     gasLimit: 10000000,
 };
-// const ATTO_FIL = 10 ** 18;
-const ATTO_FIL = 1;
+const production = import.meta.env.VITE_PRODUCTION;
+const ATTO_FIL = production ? 10 ** 18 : 1;
 
 export interface HexResponse {
     _hex: string;
