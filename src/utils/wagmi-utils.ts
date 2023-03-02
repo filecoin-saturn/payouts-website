@@ -85,21 +85,25 @@ export function formatReadContractResponse(data: Array<any>) {
 
     const [contracts, releasable, released] = data[3];
     contracts.forEach((address: string, idx: number) => {
-        const contractFunds = parseHexObject(releasable[idx], true);
-        const contractItem: ContractItem = {
-            address,
-            funds: contractFunds,
-            checked: false,
-        };
-        if (parseFloat(contractFunds) === 0) {
-            contractItem.funds = parseHexObject(released[idx], true);
-            releasedContracts[address as keyof DashboardContracts] =
-                contractItem;
-        } else {
-            releasableContracts[address as keyof DashboardContracts] =
-                contractItem;
+        // Ignore zero address
+        if (parseInt(address) > 0) {
+            const contractFunds = parseHexObject(releasable[idx], true);
+            const contractItem: ContractItem = {
+                address,
+                funds: contractFunds,
+                checked: false,
+            };
+            if (parseFloat(contractFunds) === 0) {
+                contractItem.funds = parseHexObject(released[idx], true);
+                releasedContracts[address as keyof DashboardContracts] =
+                    contractItem;
+            } else {
+                releasableContracts[address as keyof DashboardContracts] =
+                    contractItem;
+            }
         }
     });
+
     return { stats, releasableContracts, releasedContracts };
 }
 
