@@ -1,5 +1,6 @@
 import {
     Avatar,
+    Box,
     Button,
     Card,
     CardBody,
@@ -169,22 +170,35 @@ const UserDashboard = (props: { address: string }) => {
 
                     <CardBody>
                         {isLoading ? loadingSkeleton : stats}
+                        <VStack>
+                            <Box
+                                w="100%"
+                                display={'flex'}
+                                justifyContent="right"
+                                marginRight={12}
+                            >
+                                <Button
+                                    isLoading={txLoading || contractLoading}
+                                    isDisabled={
+                                        !data ||
+                                        parseFloat(data.stats.releasable) === 0
+                                    }
+                                    loadingText="Releasing Funds"
+                                    onClick={() => writeContract()}
+                                    float="right"
+                                >
+                                    Release All Funds
+                                </Button>
+                            </Box>
 
-                        <Button
-                            isLoading={txLoading || contractLoading}
-                            isDisabled={
-                                !data || parseFloat(data.stats.releasable) === 0
-                            }
-                            onClick={() => writeContract()}
-                        >
-                            Release All Funds
-                        </Button>
-
-                        <DataTable
-                            contracts={data?.releasableContracts || {}}
-                            releasedContracts={data?.releasedContracts || {}}
-                            address={address}
-                        />
+                            <DataTable
+                                contracts={data?.releasableContracts || {}}
+                                releasedContracts={
+                                    data?.releasedContracts || {}
+                                }
+                                address={address}
+                            />
+                        </VStack>
                     </CardBody>
                 </CardHeader>
             </Card>
