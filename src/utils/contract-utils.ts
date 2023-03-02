@@ -44,11 +44,18 @@ export function parseHexObject(
     response: HexResponse,
     convertToFil: boolean
 ): string {
-    const value = Number(response._hex);
+    const val = Number(response._hex);
     if (convertToFil) {
-        return (value / ATTO_FIL).toFixed(8).replace(/0+$/, '');
+        const removeTrailingZerosRegex = /0+$/;
+        let value = (val / ATTO_FIL)
+            .toFixed(8)
+            .replace(removeTrailingZerosRegex, '');
+
+        const removeTrailingPeriodRegex = /\.(?!\d)/;
+        value = value.replace(removeTrailingPeriodRegex, '');
+        return value;
     }
-    return value.toString();
+    return val.toString();
 }
 
 export async function getContract(signer?: Signer): Promise<Contract> {

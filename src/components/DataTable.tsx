@@ -141,11 +141,14 @@ const DataTable = (props: {
 
             <Tfoot>
                 <Tr>
+                    <Td />
+                    <Td />
                     <Td>
                         <Button
                             isDisabled={!allChecked && !isIndeterminate}
                             onClick={() => writeContract()}
                             isLoading={txLoading}
+                            float="right"
                             loadingText="Sending Transactions"
                             mt={4}
                         >
@@ -183,12 +186,12 @@ const DataTable = (props: {
     const isReleasedContracts = Object.keys(releasedContracts).length > 0;
     const noRowsText = (
         <Text mt={5} mb={5} textAlign="center" color="gray.400">
-            {' '}
-            No funds available to show{' '}
+            No funds available to show
         </Text>
     );
     return (
         <TableContainer
+            width={'100%'}
             mt={5}
             rounded="md"
             borderColor="gray.200"
@@ -196,13 +199,11 @@ const DataTable = (props: {
             padding={2}
         >
             <Heading m={3} size="md">
-                {' '}
-                Claimable Transactions{' '}
+                Claimable Transactions
             </Heading>
             {isContracts ? contractsTable : noRowsText}
             <Heading m={3} mt={8} size="md">
-                {' '}
-                Transaction History{' '}
+                Transaction History
             </Heading>
             {isReleasedContracts ? releasedContractsTable : noRowsText}
         </TableContainer>
