@@ -21,10 +21,10 @@ import { useEffect, useState } from 'react';
 import {
     useAccount,
     useContractReads,
-    UseContractReadsConfig,
     useContractWrite,
     UseContractWriteConfig,
     useDisconnect,
+    useNetwork,
     usePrepareContractWrite,
 } from 'wagmi';
 
@@ -37,6 +37,9 @@ import {
 } from '../utils/wagmi-utils';
 import DataTable from './DataTable';
 
+const env = import.meta.env;
+const CHAIN_ID = parseInt(env.VITE_CHAIN_ID);
+
 const UserDashboard = (props: { address: string }) => {
     const [mounted, setMounted] = useState(false);
 
@@ -45,12 +48,19 @@ const UserDashboard = (props: { address: string }) => {
     }, []);
 
     const { disconnect } = useDisconnect();
+    const { chain } = useNetwork();
 
+    useEffect(() => {
+        if (chain?.id != CHAIN_ID) {
+            disconnect();
+        }
+    }, [chain]);
     const address = props.address;
     const { connector, status } = useAccount();
     if (status === 'disconnected') {
         window.location.href = '/connect';
     }
+
     const contractFuncs = address && (getUserInfo(address) as any);
     const { data, isLoading } = useContractReads({
         contracts: contractFuncs,

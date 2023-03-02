@@ -21,7 +21,7 @@ const UserView = () => {
                 switchNetwork?.(CHAIN_ID);
             }
         }
-    }, [address, chain]);
+    }, [address, chain, switchNetwork]);
 
     useEffect(() => {
         if (!firstLoad && status !== 'connecting') {
