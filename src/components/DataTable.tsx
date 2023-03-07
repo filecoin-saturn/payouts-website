@@ -12,7 +12,7 @@ import {
     Thead,
     Tr,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import {
     useContractWrite,
     UseContractWriteConfig,
@@ -26,9 +26,11 @@ const DataTable = (props: {
     contracts: DashboardContracts;
     releasedContracts: DashboardContracts;
     address: string;
+    setDashboardTxLoading: Dispatch<SetStateAction<boolean>>;
 }) => {
     const [contracts, setContracts] = useState(props.contracts);
     const [txLoading, setTxLoading] = useState(false);
+    const setDashboardTxLoading = props.setDashboardTxLoading;
 
     useEffect(() => {
         setContracts({ ...props.contracts });
@@ -81,6 +83,8 @@ const DataTable = (props: {
             try {
                 await data?.wait();
                 setTxLoading(false);
+                setDashboardTxLoading(false);
+
                 window.location.reload();
             } catch (error) {
                 let cause;
@@ -97,6 +101,7 @@ const DataTable = (props: {
     const writeContract = () => {
         if (write) {
             setTxLoading(true);
+            setDashboardTxLoading(true);
             write();
         }
     };
