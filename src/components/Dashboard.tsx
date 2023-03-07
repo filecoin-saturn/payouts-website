@@ -196,6 +196,7 @@ const UserDashboard = (props: { address: string }) => {
                                 releasedContracts={
                                     data?.releasedContracts || {}
                                 }
+                                setDashboardTxLoading={setTxLoading}
                                 address={address}
                             />
                         </VStack>
