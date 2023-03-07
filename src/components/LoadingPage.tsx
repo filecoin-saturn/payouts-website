@@ -6,23 +6,21 @@ const LoadingPage = () => {
     return (
         <Box h="100vh" w="100%">
             <Center h="100%">
-                <Spinner size={'xl'} color="whiteAlpha.900" />
-
-                {/* <Box position={'relative'} bottom="0" right="-140px">
+                <Box position={'relative'} bottom="0" right="-140px">
                     <Icon
                         as={BiPlanet}
                         color="whiteAlpha.800"
                         w={'80px'}
                         h={'80px'}
                     />
-                </Box> */}
-                {/* <motion.div
+                </Box>
+                <motion.div
                     className="box"
                     animate={{ rotate: [0, 180] }}
                     transition={{
                         repeatDelay: 1,
                         ease: 'easeInOut',
-                        duration: 0.7,
+                        duration: 0.6,
                         repeat: Infinity,
                     }}
                 >
@@ -117,7 +115,7 @@ const LoadingPage = () => {
                             h={10}
                         />
                     </Box>
-                </motion.div> */}
+                </motion.div>
             </Center>
         </Box>
     );
