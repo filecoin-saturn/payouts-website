@@ -6,15 +6,17 @@ const LoadingPage = () => {
     return (
         <Box h="100vh" w="100%">
             <Center h="100%">
-                <Box position={'relative'} bottom="0" right="-140px">
+                <Spinner size={'xl'} color="whiteAlpha.900" />
+
+                {/* <Box position={'relative'} bottom="0" right="-140px">
                     <Icon
                         as={BiPlanet}
                         color="whiteAlpha.800"
                         w={'80px'}
                         h={'80px'}
                     />
-                </Box>
-                <motion.div
+                </Box> */}
+                {/* <motion.div
                     className="box"
                     animate={{ rotate: [0, 180] }}
                     transition={{
@@ -30,7 +32,6 @@ const LoadingPage = () => {
                         h="200px"
                         // backgroundColor={'whiteAlpha.300'}
                     >
-                        {/* <Box sx={{ rotate: '305deg' }}> */}
                         <Icon
                             as={CiSatellite1}
                             color="whiteAlpha.800"
@@ -105,7 +106,6 @@ const LoadingPage = () => {
                             w={10}
                             h={10}
                         />
-                        {/* </Box> */}
 
                         <Icon
                             as={CiSatellite1}
@@ -117,7 +117,7 @@ const LoadingPage = () => {
                             h={10}
                         />
                     </Box>
-                </motion.div>
+                </motion.div> */}
             </Center>
         </Box>
     );
