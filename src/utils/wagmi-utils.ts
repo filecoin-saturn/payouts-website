@@ -48,7 +48,7 @@ export const client = createClient({
         new InjectedConnector({
             chains,
             options: {
-                name: 'Injected',
+                name: 'Browser Detected Wallet',
                 shimDisconnect: true,
             },
         }),

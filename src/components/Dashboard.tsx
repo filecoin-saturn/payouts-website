@@ -21,6 +21,7 @@ import {
 import { useEffect, useState } from 'react';
 import {
     useAccount,
+    useBalance,
     useContractReads,
     useContractWrite,
     UseContractWriteConfig,
@@ -29,7 +30,7 @@ import {
     usePrepareContractWrite,
 } from 'wagmi';
 
-import { ContractError } from '../types';
+import { ContractError, InfoModalType } from '../types';
 import {
     formatReadContractResponse,
     getRelease,
@@ -37,9 +38,13 @@ import {
     truncateEthAddress,
 } from '../utils/wagmi-utils';
 import DataTable from './DataTable';
+import InfoModal from './InfoModal';
 
 const env = import.meta.env;
 const CHAIN_ID = parseInt(env.VITE_CHAIN_ID);
+const FIL_BALANCE_MAX_DIGITS = 7;
+
+type Address = `0x${string}`;
 
 const UserDashboard = (props: { address: string }) => {
     const [mounted, setMounted] = useState(false);
@@ -61,6 +66,10 @@ const UserDashboard = (props: { address: string }) => {
     if (status === 'disconnected') {
         window.location.href = '/connect';
     }
+
+    const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
+        address: address as Address,
+    });
 
     const contractFuncs = address && (getUserInfo(address) as any);
     const { data, isLoading } = useContractReads({
@@ -102,6 +111,8 @@ const UserDashboard = (props: { address: string }) => {
         }
     };
 
+    const skeletonComp = <Skeleton height="20px" />;
+
     const loadingSkeleton = (
         <Stack>
             <Skeleton height="20px" />
@@ -109,6 +120,36 @@ const UserDashboard = (props: { address: string }) => {
             <Skeleton height="20px" />
         </Stack>
     );
+
+    const balance = isBalanceLoading ? (
+        skeletonComp
+    ) : (
+        <Text fontSize={'xl'} fontWeight="bold" alignSelf={'flex-start'}>
+            Balance: {balanceData?.formatted.slice(0, FIL_BALANCE_MAX_DIGITS)}{' '}
+            {balanceData?.symbol}
+        </Text>
+    );
+
+    const hasZeroBalance = balanceData
+        ? parseFloat(balanceData.formatted) === 0
+        : false;
+
+    let infoModal;
+    if (hasZeroBalance) {
+        const gasFeeMessage =
+            'To claim earnings you must have FIL to cover gas fees' +
+            ' your account balance is currently zero so you will only be able to view but not claim' +
+            ' earnings. To claim earnings, please transfer some FIL in your account to cover gas fees.';
+
+        infoModal = (
+            <InfoModal
+                modalType={InfoModalType.warning}
+                message={gasFeeMessage}
+                title={'Gas Fees'}
+            />
+        );
+    }
+
     const header = address && connector && (
         <>
             <HStack spacing={'10'} flexWrap="wrap">
@@ -117,6 +158,7 @@ const UserDashboard = (props: { address: string }) => {
                     <Heading size={'lg'} alignSelf="flex-start">
                         {truncateEthAddress(address)}{' '}
                     </Heading>
+                    {balance}
                     <Text alignSelf={'flex-start'}>
                         Connected to {connector.name}
                     </Text>
@@ -154,9 +196,11 @@ const UserDashboard = (props: { address: string }) => {
     if (!mounted) {
         return null;
     }
+
     return (
         <Center>
-            <Card w="100%" maxW={'1200px'} p="4" mb={6}>
+            {infoModal}
+            <Card w="100%" maxW={'1200px'} p="4" m={6}>
                 <CardHeader w="100%">
                     <Stack
                         mt={5}
@@ -181,6 +225,7 @@ const UserDashboard = (props: { address: string }) => {
                                     isLoading={txLoading || contractLoading}
                                     isDisabled={
                                         !data ||
+                                        hasZeroBalance ||
                                         parseFloat(data.stats.releasable) === 0
                                     }
                                     loadingText="Releasing Funds"
@@ -196,6 +241,7 @@ const UserDashboard = (props: { address: string }) => {
                                 releasedContracts={
                                     data?.releasedContracts || {}
                                 }
+                                zeroFunds={hasZeroBalance}
                                 setDashboardTxLoading={setTxLoading}
                                 address={address}
                             />
