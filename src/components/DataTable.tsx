@@ -26,6 +26,7 @@ const DataTable = (props: {
     contracts: DashboardContracts;
     releasedContracts: DashboardContracts;
     address: string;
+    zeroFunds: boolean;
     setDashboardTxLoading: Dispatch<SetStateAction<boolean>>;
 }) => {
     const [contracts, setContracts] = useState(props.contracts);
@@ -115,6 +116,7 @@ const DataTable = (props: {
                     <Checkbox
                         size={'lg'}
                         isChecked={contract.checked}
+                        isDisabled={props.zeroFunds}
                         onChange={() => changeState(address)}
                     ></Checkbox>
                 </Td>
@@ -132,6 +134,7 @@ const DataTable = (props: {
                         <Checkbox
                             size="lg"
                             isChecked={allChecked}
+                            isDisabled={props.zeroFunds}
                             isIndeterminate={isIndeterminate}
                             onChange={() => selectAll()}
                         >

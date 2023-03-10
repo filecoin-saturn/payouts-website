@@ -10,6 +10,12 @@ export enum ContractError {
     TRANSACTION = 'Error performing transaction',
 }
 
+export enum InfoModalType {
+    warning = 'warning',
+    error = 'error',
+    info = 'info',
+}
+
 export enum NetworkError {
     CONNECTION_ERROR = 'Failed to connect to network',
     ACCOUNT_ERROR = 'Failed to to connect to account',
