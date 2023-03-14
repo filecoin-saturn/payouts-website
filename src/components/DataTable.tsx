@@ -20,7 +20,11 @@ import {
 } from 'wagmi';
 
 import { ContractError, ContractItem, DashboardContracts } from '../types';
-import { factoryContract, truncateEthAddress } from '../utils/wagmi-utils';
+import {
+    factoryContract,
+    formatAddressForContract,
+    truncateEthAddress,
+} from '../utils/wagmi-utils';
 
 const DataTable = (props: {
     contracts: DashboardContracts;
@@ -68,7 +72,7 @@ const DataTable = (props: {
         contracts &&
         Object.values(contracts).filter((item: ContractItem) => item.checked);
     const writeArgs = [
-        props.address,
+        formatAddressForContract(props.address),
         selectedContracts.map((item: ContractItem) => item.address),
     ];
 
