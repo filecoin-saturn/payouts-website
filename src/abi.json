@@ -88,9 +88,14 @@
         "name": "payout",
         "inputs": [
             {
-                "internalType": "address[]",
+                "internalType": "struct CommonTypes.FilAddress[]",
                 "name": "payees",
-                "type": "address[]"
+                "type": "tuple[]",
+                "components": [
+                    {
+                        "type": "bytes"
+                    }
+                ]
             },
             {
                 "internalType": "uint256[]",
@@ -125,9 +130,14 @@
         "name": "releasable",
         "inputs": [
             {
-                "internalType": "address",
+                "internalType": "struct CommonTypes.FilAddress",
                 "name": "account",
-                "type": "address"
+                "type": "tuple",
+                "components": [
+                    {
+                        "type": "bytes"
+                    }
+                ]
             }
         ],
         "outputs": [
@@ -144,9 +154,14 @@
         "name": "releasablePerContract",
         "inputs": [
             {
-                "internalType": "address",
+                "internalType": "struct CommonTypes.FilAddress",
                 "name": "account",
-                "type": "address"
+                "type": "tuple",
+                "components": [
+                    {
+                        "type": "bytes"
+                    }
+                ]
             }
         ],
         "outputs": [
@@ -173,9 +188,14 @@
         "name": "releaseAll",
         "inputs": [
             {
-                "internalType": "address",
+                "internalType": "struct CommonTypes.FilAddress",
                 "name": "account",
-                "type": "address"
+                "type": "tuple",
+                "components": [
+                    {
+                        "type": "bytes"
+                    }
+                ]
             }
         ],
         "outputs": [],
@@ -186,9 +206,14 @@
         "name": "releaseSelect",
         "inputs": [
             {
-                "internalType": "address",
+                "internalType": "struct CommonTypes.FilAddress",
                 "name": "account",
-                "type": "address"
+                "type": "tuple",
+                "components": [
+                    {
+                        "type": "bytes"
+                    }
+                ]
             },
             {
                 "internalType": "address[]",
@@ -204,9 +229,14 @@
         "name": "released",
         "inputs": [
             {
-                "internalType": "address",
+                "internalType": "struct CommonTypes.FilAddress",
                 "name": "account",
-                "type": "address"
+                "type": "tuple",
+                "components": [
+                    {
+                        "type": "bytes"
+                    }
+                ]
             }
         ],
         "outputs": [
@@ -259,9 +289,14 @@
         "name": "shares",
         "inputs": [
             {
-                "internalType": "address",
+                "internalType": "struct CommonTypes.FilAddress",
                 "name": "account",
-                "type": "address"
+                "type": "tuple",
+                "components": [
+                    {
+                        "type": "bytes"
+                    }
+                ]
             }
         ],
         "outputs": [
@@ -354,8 +389,13 @@
         "inputs": [
             {
                 "name": "to",
-                "type": "address",
-                "indexed": false
+                "type": "tuple",
+                "indexed": false,
+                "components": [
+                    {
+                        "type": "bytes"
+                    }
+                ]
             },
             {
                 "name": "amount",
