@@ -18,7 +18,7 @@ import {
     ModalOverlay,
     Text,
 } from '@chakra-ui/react';
-import { isAddress } from 'ethers/lib/utils';
+import { validateAddressString } from '@glif/filecoin-address';
 import { useState } from 'react';
 import { FormEvent } from 'react';
 import { Connector } from 'wagmi';
@@ -48,7 +48,7 @@ function WalletForm(props: { address: string; connector: Connector }) {
         event.preventDefault();
         const address = event.currentTarget.value;
 
-        if (isAddress(address)) {
+        if (validateAddressString(address)) {
             setFormValidation(true);
             setUserAddress(address);
             return;
@@ -61,17 +61,16 @@ function WalletForm(props: { address: string; connector: Connector }) {
         <>
             <ModalBody>
                 <Heading size="lg" m={4}>
-                    Selected Address: {truncateEthAddress(props.address)}
+                    Connected Wallet Address:{' '}
+                    {truncateEthAddress(props.address)}
                 </Heading>
                 <Divider mb={4} />
                 <Text fontSize={'xl'}>
-                    Please confirm your Saturn Node operator address. To change
-                    the address, you can either select a different address from
-                    your browser wallet or manually insert one.
-                </Text>
-                <Text fontSize={'xl'}>
-                    If you are depositing into an exchange wallet, insert the
-                    exchange manually by clicking on &quot;Change Address&quot;.
+                    This is the wallet address you will be connecting with. This
+                    is not meant to be your filecoin address. If you desire to
+                    connect with a different wallet then please select a
+                    different account from your wallet provider. Otherwise,
+                    proceed to insert your Filecoin Address.
                 </Text>
             </ModalBody>
             <ModalFooter>
@@ -79,15 +78,6 @@ function WalletForm(props: { address: string; connector: Connector }) {
                     <Button
                         leftIcon={<EditIcon />}
                         onClick={() => setChangeAddress(true)}
-                    >
-                        Change Address
-                    </Button>
-                    <Button
-                        leftIcon={<CheckIcon />}
-                        onClick={() => {
-                            setUserAddress(props.address);
-                            setSubmitted(true);
-                        }}
                     >
                         Proceed
                     </Button>
@@ -99,17 +89,21 @@ function WalletForm(props: { address: string; connector: Connector }) {
     const addressSubmitForm = (
         <>
             <ModalBody>
+                <Text fontSize={'xl'} mb={4}>
+                    Please insert the filecoin address that you will be claiming
+                    for earnings for.
+                </Text>
                 <FormControl isRequired isInvalid={formValid === false}>
                     <FormLabel aria-label="Wallet Address">
-                        Wallet Address
+                        Filecoin Address
                     </FormLabel>
                     <Input
                         onChange={onAddressChange}
-                        placeholder="Ethereum Address"
+                        placeholder="Filecoin Address"
                     />
                     {formValid === true ? (
                         <FormHelperText>
-                            Enter a valid Ethereum address.
+                            Enter a valid Filecoin address.
                         </FormHelperText>
                     ) : (
                         <FormErrorMessage>

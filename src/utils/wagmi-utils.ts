@@ -1,4 +1,6 @@
-import { Chain, configureChains, createClient, mainnet } from 'wagmi';
+import { newFromString } from '@glif/filecoin-address';
+import { hexlify } from 'ethers/lib/utils.js';
+import { Chain, configureChains, createClient } from 'wagmi';
 import { filecoin, filecoinHyperspace, localhost } from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
@@ -63,10 +65,12 @@ export const factoryContract = {
 };
 
 export function getRelease(address: string) {
+    const addr = formatAddressForContract(address);
+
     return {
         ...factoryContract,
         functionName: 'releaseAll',
-        args: [address],
+        args: [addr],
     };
 }
 
@@ -117,22 +121,38 @@ export function getUserInfo(address: string) {
         'releasablePerContract',
     ];
 
+    const addr = formatAddressForContract(address);
+
     functionsToRead.forEach((name) => {
         functionReads.push({
             ...factoryContract,
             functionName: name,
-            args: [address],
+            chainId: 3141,
+            args: [addr],
         });
     });
 
     return functionReads;
 }
 
+export const formatAddressForContract = (address: string) => {
+    return [hexlify(Array.from(newFromString(address).bytes))];
+};
 // Captures 0x + 5 characters, then the last 5 characters.
-const truncateRegex = /^(0x[a-zA-Z0-9]{5})[a-zA-Z0-9]+([a-zA-Z0-9]{5})$/;
+const truncateEthRegex = /^(0x[a-zA-Z0-9]{5})[a-zA-Z0-9]+([a-zA-Z0-9]{5})$/;
 
 export const truncateEthAddress = (address: string) => {
-    const match = address.match(truncateRegex);
+    const match = address.match(truncateEthRegex);
+    if (!match) return address;
+    return `${match[1]}…${match[2]}`;
+};
+
+// TODO: Update this to f- addresses for mainnet launch.
+// Captures t + 8 characters, then the last 8 characters.
+const truncateFilecoinRegex = /^(t[a-zA-Z0-9]{8})[a-zA-Z0-9]+([a-zA-Z0-9]{8})$/;
+
+export const truncateFilecoinAddress = (address: string) => {
+    const match = address.match(truncateFilecoinRegex);
     if (!match) return address;
     return `${match[1]}…${match[2]}`;
 };

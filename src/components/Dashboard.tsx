@@ -36,6 +36,7 @@ import {
     getRelease,
     getUserInfo,
     truncateEthAddress,
+    truncateFilecoinAddress,
 } from '../utils/wagmi-utils';
 import DataTable from './DataTable';
 import InfoModal from './InfoModal';
@@ -62,13 +63,13 @@ const UserDashboard = (props: { address: string }) => {
         }
     }, [chain]);
     const address = props.address;
-    const { connector, status } = useAccount();
+    const { address: walletAddress, connector, status } = useAccount();
     if (status === 'disconnected') {
         window.location.href = '/connect';
     }
 
     const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
-        address: address as Address,
+        address: walletAddress as Address,
     });
 
     const contractFuncs = address && (getUserInfo(address) as any);
@@ -124,8 +125,9 @@ const UserDashboard = (props: { address: string }) => {
     const balance = isBalanceLoading ? (
         skeletonComp
     ) : (
-        <Text fontSize={'xl'} fontWeight="bold" alignSelf={'flex-start'}>
-            Balance: {balanceData?.formatted.slice(0, FIL_BALANCE_MAX_DIGITS)}{' '}
+        <Text fontSize={'md'} fontWeight="bold" alignSelf={'flex-start'}>
+            {connector?.name} Balance:{' '}
+            {balanceData?.formatted.slice(0, FIL_BALANCE_MAX_DIGITS)}{' '}
             {balanceData?.symbol}
         </Text>
     );
@@ -153,14 +155,26 @@ const UserDashboard = (props: { address: string }) => {
     const header = address && connector && (
         <>
             <HStack spacing={'10'} flexWrap="wrap">
-                <Avatar size={'lg'} />
-                <VStack>
-                    <Heading size={'lg'} alignSelf="flex-start">
-                        {truncateEthAddress(address)}{' '}
+                <Avatar size={'xl'} />
+                <VStack spacing={0}>
+                    <Heading size={'lg'} alignSelf="flex-start" mb={3}>
+                        Viewing earnings for {truncateFilecoinAddress(address)}
                     </Heading>
+                    <Text
+                        fontSize={'md'}
+                        fontWeight="bold"
+                        alignSelf={'flex-start'}
+                    >
+                        Connected to{' '}
+                        {truncateEthAddress(walletAddress as string)}
+                    </Text>
                     {balance}
-                    <Text alignSelf={'flex-start'}>
-                        Connected to {connector.name}
+                    <Text
+                        fontSize={'md'}
+                        fontWeight="bold"
+                        alignSelf={'flex-start'}
+                    >
+                        Network: {chain?.name}
                     </Text>
                 </VStack>
             </HStack>
@@ -171,26 +185,28 @@ const UserDashboard = (props: { address: string }) => {
     );
 
     const stats = data && (
-        <StatGroup mb={5}>
-            <Stat>
-                <StatLabel>
-                    <Heading size="sm"> Total Earnings</Heading>
-                </StatLabel>
-                <StatNumber> {data.stats.shares} FIL </StatNumber>
-            </Stat>
-            <Stat>
-                <StatLabel>
-                    <Heading size="sm"> Released Earnings</Heading>
-                </StatLabel>
-                <StatNumber>{data.stats.released} FIL</StatNumber>
-            </Stat>
-            <Stat>
-                <StatLabel>
-                    <Heading size="sm"> Claimable Earnings</Heading>
-                </StatLabel>
-                <StatNumber> {data.stats.releasable} FIL </StatNumber>
-            </Stat>
-        </StatGroup>
+        <>
+            <StatGroup mb={5} mt={4}>
+                <Stat>
+                    <StatLabel>
+                        <Heading size="sm"> Total Earnings</Heading>
+                    </StatLabel>
+                    <StatNumber> {data.stats.shares} FIL </StatNumber>
+                </Stat>
+                <Stat>
+                    <StatLabel>
+                        <Heading size="sm"> Released Earnings</Heading>
+                    </StatLabel>
+                    <StatNumber>{data.stats.released} FIL</StatNumber>
+                </Stat>
+                <Stat>
+                    <StatLabel>
+                        <Heading size="sm"> Claimable Earnings</Heading>
+                    </StatLabel>
+                    <StatNumber> {data.stats.releasable} FIL </StatNumber>
+                </Stat>
+            </StatGroup>
+        </>
     );
 
     if (!mounted) {
@@ -210,7 +226,7 @@ const UserDashboard = (props: { address: string }) => {
                     >
                         {header}
                     </Stack>
-                    <Divider mt={10} mb={2} />
+                    <Divider mt={1} mb={2} />
 
                     <CardBody>
                         {isLoading ? loadingSkeleton : stats}
