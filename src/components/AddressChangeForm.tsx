@@ -148,7 +148,7 @@ function WalletForm(props: { address: string; connector: Connector }) {
             <ModalContent padding={5}>
                 <ModalHeader padding={3}>
                     <Heading textAlign="center" size="2xl">
-                        Confirm Address
+                        Confirm Wallet Connection
                     </Heading>
                 </ModalHeader>
                 {changeAddress ? addressSubmitForm : selectionButtonGroup}
