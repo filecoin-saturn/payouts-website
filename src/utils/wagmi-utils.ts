@@ -25,6 +25,8 @@ const supportedChains = (
     env.VITE_PRODUCTION ? productionChains : localChains
 ) as Array<Chain>;
 
+const CHAIN_ID = parseInt(env.VITE_CHAIN_ID);
+
 const { chains, provider, webSocketProvider } = configureChains(
     supportedChains,
     [publicProvider()]
@@ -127,7 +129,7 @@ export function getUserInfo(address: string) {
         functionReads.push({
             ...factoryContract,
             functionName: name,
-            chainId: 3141,
+            chainId: CHAIN_ID,
             args: [addr],
         });
     });
@@ -147,11 +149,15 @@ export const truncateEthAddress = (address: string) => {
     return `${match[1]}…${match[2]}`;
 };
 
-// TODO: Update this to f- addresses for mainnet launch.
-// Captures t + 8 characters, then the last 8 characters.
-const truncateFilecoinRegex = /^(t[a-zA-Z0-9]{8})[a-zA-Z0-9]+([a-zA-Z0-9]{8})$/;
-
 export const truncateFilecoinAddress = (address: string) => {
+    // Captures t + 8 characters, then the last 8 characters.
+    let truncateFilecoinRegex =
+        /^(t[a-zA-Z0-9]{8})[a-zA-Z0-9]+([a-zA-Z0-9]{8})$/;
+
+    if (address[0] === 'f') {
+        truncateFilecoinRegex =
+            /^(f[a-zA-Z0-9]{8})[a-zA-Z0-9]+([a-zA-Z0-9]{8})$/;
+    }
     const match = address.match(truncateFilecoinRegex);
     if (!match) return address;
     return `${match[1]}…${match[2]}`;

@@ -66,11 +66,13 @@ function WalletForm(props: { address: string; connector: Connector }) {
                 </Heading>
                 <Divider mb={4} />
                 <Text fontSize={'xl'}>
-                    This is the wallet address you will be connecting with. This
-                    is not meant to be your filecoin address. If you desire to
-                    connect with a different wallet then please select a
-                    different account from your wallet provider. Otherwise,
-                    proceed to insert your Filecoin Address.
+                    You have successfully connected with your wallet! This
+                    wallet will be used to sign and claim earnigns for your
+                    filecoin address. Make sure you have funds in your wallet so
+                    you can cover gas fees! If you desire to connect with a
+                    different wallet then please select a different account from
+                    your wallet provider. Otherwise, proceed to insert your
+                    Filecoin Address that you will be claiming funds for.
                 </Text>
             </ModalBody>
             <ModalFooter>
