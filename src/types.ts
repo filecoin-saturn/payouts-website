@@ -1,7 +1,10 @@
-export interface UserInfo {
+interface ContractStats {
     shares: string;
     releasable: string;
     released: string;
+}
+
+export interface UserInfo extends ContractStats {
     address: string;
 }
 
@@ -27,6 +30,11 @@ export interface ProviderRpcError extends Error {
     data?: unknown;
 }
 
+export interface PendingTransaction {
+    hash: string;
+    contractAddress: string;
+}
+
 export enum ProviderErrorCodes {
     CHAIN_DISCONNECTED = 4902,
 }
@@ -36,4 +44,11 @@ export interface ContractItem {
     address: string;
     funds: string;
     checked: boolean;
+    pending: boolean;
+}
+
+export interface DashboardWriteContractData {
+    stats: ContractStats;
+    releasedContracts: DashboardContracts;
+    releasableContracts: DashboardContracts;
 }

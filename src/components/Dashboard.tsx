@@ -30,7 +30,11 @@ import {
     usePrepareContractWrite,
 } from 'wagmi';
 
-import { ContractError, InfoModalType } from '../types';
+import {
+    ContractError,
+    DashboardWriteContractData,
+    InfoModalType,
+} from '../types';
 import {
     formatReadContractResponse,
     getRelease,
@@ -49,6 +53,10 @@ type Address = `0x${string}`;
 
 const UserDashboard = (props: { address: string }) => {
     const [mounted, setMounted] = useState(false);
+    const [pending, setAllPending] = useState<string | null>(null);
+    const [fetchedData, setFetchedData] = useState<
+        DashboardWriteContractData | undefined
+    >(undefined);
 
     useEffect(() => {
         setMounted(true);
@@ -62,6 +70,7 @@ const UserDashboard = (props: { address: string }) => {
             disconnect();
         }
     }, [chain]);
+
     const address = props.address;
     const { address: walletAddress, connector, status } = useAccount();
     if (status === 'disconnected') {
@@ -73,26 +82,27 @@ const UserDashboard = (props: { address: string }) => {
     });
 
     const contractFuncs = address && (getUserInfo(address) as any);
-    const { data, isLoading } = useContractReads({
+    const { data, isLoading, isRefetching } = useContractReads({
         contracts: contractFuncs,
-        select: (data) => formatReadContractResponse(data),
+        select: (data) => formatReadContractResponse(data, pending),
+        watch: true,
     });
 
+    useEffect(() => {
+        setFetchedData(data);
+    }, [data]);
     const { config } = usePrepareContractWrite(getRelease(address) as object);
 
     const [txLoading, setTxLoading] = useState(false);
 
-    const {
-        data: writeData,
-        isLoading: contractLoading,
-        write,
-    } = useContractWrite({
+    const { isLoading: contractLoading, write } = useContractWrite({
         ...(config as UseContractWriteConfig),
         async onSettled(data) {
+            setTxLoading(false);
+            data && setAllPending(data.hash);
             try {
                 await data?.wait();
-                setTxLoading(false);
-                window.location.reload();
+                setAllPending(null);
             } catch (error) {
                 let cause;
                 if (error instanceof Error) {
@@ -104,7 +114,6 @@ const UserDashboard = (props: { address: string }) => {
             }
         },
     });
-
     const writeContract = () => {
         if (write) {
             setTxLoading(true);
@@ -184,26 +193,29 @@ const UserDashboard = (props: { address: string }) => {
         </>
     );
 
-    const stats = data && (
+    const stats = fetchedData && (
         <>
             <StatGroup mb={5} mt={4}>
                 <Stat>
                     <StatLabel>
                         <Heading size="sm"> Total Earnings</Heading>
                     </StatLabel>
-                    <StatNumber> {data.stats.shares} FIL </StatNumber>
+                    <StatNumber> {fetchedData.stats.shares} FIL </StatNumber>
                 </Stat>
                 <Stat>
                     <StatLabel>
                         <Heading size="sm"> Released Earnings</Heading>
                     </StatLabel>
-                    <StatNumber>{data.stats.released} FIL</StatNumber>
+                    <StatNumber>{fetchedData.stats.released} FIL</StatNumber>
                 </Stat>
                 <Stat>
                     <StatLabel>
                         <Heading size="sm"> Claimable Earnings</Heading>
                     </StatLabel>
-                    <StatNumber> {data.stats.releasable} FIL </StatNumber>
+                    <StatNumber>
+                        {' '}
+                        {fetchedData.stats.releasable} FIL{' '}
+                    </StatNumber>
                 </Stat>
             </StatGroup>
         </>
@@ -212,6 +224,7 @@ const UserDashboard = (props: { address: string }) => {
     if (!mounted) {
         return null;
     }
+    // console.log(fetchedData?.releasableContracts);
 
     return (
         <Center>
@@ -240,9 +253,11 @@ const UserDashboard = (props: { address: string }) => {
                                 <Button
                                     isLoading={txLoading || contractLoading}
                                     isDisabled={
-                                        !data ||
+                                        !fetchedData ||
                                         hasZeroBalance ||
-                                        parseFloat(data.stats.releasable) === 0
+                                        parseFloat(
+                                            fetchedData.stats.releasable
+                                        ) === 0
                                     }
                                     loadingText="Releasing Funds"
                                     onClick={() => writeContract()}
@@ -253,11 +268,14 @@ const UserDashboard = (props: { address: string }) => {
                             </Box>
 
                             <DataTable
-                                contracts={data?.releasableContracts || {}}
+                                contracts={
+                                    fetchedData?.releasableContracts || {}
+                                }
                                 releasedContracts={
-                                    data?.releasedContracts || {}
+                                    fetchedData?.releasedContracts || {}
                                 }
                                 zeroFunds={hasZeroBalance}
+                                allPendingHash={pending}
                                 setDashboardTxLoading={setTxLoading}
                                 address={address}
                             />

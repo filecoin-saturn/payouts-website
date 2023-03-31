@@ -9,7 +9,11 @@ import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { publicProvider } from 'wagmi/providers/public';
 
 import contractAbi from '../abi.json';
-import { ContractItem, DashboardContracts } from '../types';
+import {
+    ContractItem,
+    DashboardContracts,
+    DashboardWriteContractData,
+} from '../types';
 import { HexResponse, parseHexObject } from './contract-utils';
 const env = import.meta.env;
 const FACTORY_ADDRESS = env.VITE_FACTORY_ADDRESS;
@@ -76,7 +80,10 @@ export function getRelease(address: string) {
     };
 }
 
-export function formatReadContractResponse(data: Array<any>) {
+export function formatReadContractResponse(
+    data: Array<any>,
+    pending: string | null
+): DashboardWriteContractData {
     const statArray = data
         ?.slice(0, 3)
         .map((item) => parseHexObject(item as HexResponse, true));
@@ -98,6 +105,7 @@ export function formatReadContractResponse(data: Array<any>) {
                 address,
                 funds: contractFunds,
                 checked: false,
+                pending: pending ? true : false,
             };
             if (parseFloat(contractFunds) === 0) {
                 contractItem.funds = parseHexObject(released[idx], true);
@@ -110,6 +118,7 @@ export function formatReadContractResponse(data: Array<any>) {
         }
     });
 
+    // console.log('Contract data', contracts);
     return { stats, releasableContracts, releasedContracts };
 }
 
