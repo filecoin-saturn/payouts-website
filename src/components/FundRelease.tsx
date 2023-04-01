@@ -29,7 +29,7 @@ import {
     switchNetwork,
     walletProvider,
 } from '../utils/contract-utils';
-import ErrorModal from './ErrorModal';
+import ErrorModal from './Modals/ErrorModal';
 
 enum FundStates {
     initiated = 'initiated',

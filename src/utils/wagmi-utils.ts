@@ -118,7 +118,6 @@ export function formatReadContractResponse(
         }
     });
 
-    // console.log('Contract data', contracts);
     return { stats, releasableContracts, releasedContracts };
 }
 

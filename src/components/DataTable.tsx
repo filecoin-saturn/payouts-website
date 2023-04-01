@@ -27,6 +27,7 @@ import {
     DashboardContracts,
     PendingTransaction,
 } from '../types';
+import { generateError } from '../utils/contract-utils';
 import {
     factoryContract,
     formatAddressForContract,
@@ -42,12 +43,14 @@ const DataTable = (props: {
     allPendingHash: string | null;
     zeroFunds: boolean;
     setDashboardTxLoading: Dispatch<SetStateAction<boolean>>;
+    setErrorState: Dispatch<SetStateAction<Error | null>>;
 }) => {
     const [contracts, setContracts] = useState(props.contracts);
     const [txLoading, setTxLoading] = useState<boolean>(false);
     const [pendingTransactions, setPendingTransactions] = useState<
         Array<PendingTransaction>
     >([]);
+    const setErrorState = props.setErrorState;
 
     useEffect(() => {
         if (props.allPendingHash) {
@@ -76,15 +79,14 @@ const DataTable = (props: {
         pendingTransactions[0] && pendingTransactions[0].hash;
     const { data, isError } = useWaitForTransaction({
         hash: transactionToWatch as any,
-        onSettled(data, error) {
-            if (error) {
-                let cause;
-                if (error instanceof Error) {
-                    cause = error.message;
-                }
-                throw new Error(ContractError.TRANSACTION, {
-                    cause,
-                });
+        onSettled(data, transactionError) {
+            if (transactionError) {
+                const error = generateError(
+                    ContractError.TRANSACTION,
+                    transactionError
+                );
+                setErrorState(error);
+                throw error;
             }
             clearPendingTransaction(transactionToWatch);
         },
@@ -182,7 +184,15 @@ const DataTable = (props: {
 
     const { write } = useContractWrite({
         ...(config as UseContractWriteConfig),
-        async onSettled(data) {
+        async onSettled(data, contractError) {
+            if (contractError) {
+                const error = generateError(
+                    ContractError.TRANSACTION,
+                    contractError
+                );
+                setErrorState(error);
+                throw error;
+            }
             const transactionHash = data?.hash;
             transactionHash && addPendingTransaction(transactionHash);
             setDashboardTxLoading(false);
@@ -191,14 +201,13 @@ const DataTable = (props: {
             try {
                 await data?.wait();
                 transactionHash && clearPendingTransaction(transactionHash);
-            } catch (error) {
-                let cause;
-                if (error instanceof Error) {
-                    cause = error.message;
-                }
-                throw new Error(ContractError.TRANSACTION, {
-                    cause,
-                });
+            } catch (transactionError) {
+                const error = generateError(
+                    ContractError.TRANSACTION,
+                    transactionError
+                );
+                setErrorState(error);
+                throw error;
             }
         },
     });

@@ -16,7 +16,7 @@ import { FormEvent } from 'react';
 
 import { UserInfo } from '../types';
 import { getContract, readUserInfo } from '../utils/contract-utils';
-import ErrorModal from './ErrorModal';
+import ErrorModal from './Modals/ErrorModal';
 import FundRelease from './FundRelease';
 
 // 0xe058CfF7D4eA8B3d0B2682D7c76035988fb4A7b5

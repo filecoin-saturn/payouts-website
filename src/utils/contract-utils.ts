@@ -214,3 +214,13 @@ export const supportsLocalStorage = () => {
         return false;
     }
 };
+
+export const generateError = (message: string, error: unknown) => {
+    let cause;
+    if (error instanceof Error) {
+        cause = error.message;
+    }
+    return new Error(message, {
+        cause,
+    });
+};
