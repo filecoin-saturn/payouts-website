@@ -12,9 +12,9 @@ import {
     ModalOverlay,
     Text,
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-import { InfoModalType } from '../types';
+import { InfoModalType } from '../../types';
 
 interface InfoModalProps {
     modalType: InfoModalType;

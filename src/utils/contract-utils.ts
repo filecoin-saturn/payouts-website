@@ -203,3 +203,24 @@ export const switchNetwork = async () => {
     }
     return;
 };
+
+export const supportsLocalStorage = () => {
+    try {
+        const testKey = 'test';
+        localStorage.setItem(testKey, testKey);
+        localStorage.removeItem(testKey);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
+export const generateError = (message: string, error: unknown) => {
+    let cause;
+    if (error instanceof Error) {
+        cause = error.message;
+    }
+    return new Error(message, {
+        cause,
+    });
+};

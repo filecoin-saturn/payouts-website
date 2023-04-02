@@ -1,4 +1,5 @@
 import {
+    Badge,
     Button,
     Checkbox,
     Heading,
@@ -17,29 +18,124 @@ import {
     useContractWrite,
     UseContractWriteConfig,
     usePrepareContractWrite,
+    useWaitForTransaction,
 } from 'wagmi';
 
-import { ContractError, ContractItem, DashboardContracts } from '../types';
+import {
+    ContractError,
+    ContractItem,
+    DashboardContracts,
+    PendingTransaction,
+} from '../types';
+import { generateError } from '../utils/contract-utils';
 import {
     factoryContract,
     formatAddressForContract,
     truncateEthAddress,
 } from '../utils/wagmi-utils';
 
+const LOCAL_STORAGE_ID = 'saturnTransactionHashes';
+
 const DataTable = (props: {
     contracts: DashboardContracts;
     releasedContracts: DashboardContracts;
     address: string;
+    allPendingHash: string | null;
     zeroFunds: boolean;
     setDashboardTxLoading: Dispatch<SetStateAction<boolean>>;
+    setErrorState: Dispatch<SetStateAction<Error | null>>;
 }) => {
     const [contracts, setContracts] = useState(props.contracts);
-    const [txLoading, setTxLoading] = useState(false);
-    const setDashboardTxLoading = props.setDashboardTxLoading;
+    const [txLoading, setTxLoading] = useState<boolean>(false);
+    const [pendingTransactions, setPendingTransactions] = useState<
+        Array<PendingTransaction>
+    >([]);
+    const setErrorState = props.setErrorState;
+
+    useEffect(() => {
+        if (props.allPendingHash) {
+            addPendingTransaction(props.allPendingHash, true);
+        }
+    }, [props.allPendingHash]);
 
     useEffect(() => {
         setContracts({ ...props.contracts });
+
+        const newContracts = props.contracts;
+        const cachedTransactions = localStorage.getItem(LOCAL_STORAGE_ID);
+        if (cachedTransactions) {
+            const parsedCachedTransactions: Array<PendingTransaction> =
+                JSON.parse(cachedTransactions);
+            parsedCachedTransactions.forEach((transaction) => {
+                const contract = newContracts[transaction.contractAddress];
+                if (contract) contract.pending = true;
+            });
+            setContracts({ ...newContracts });
+            setPendingTransactions(JSON.parse(cachedTransactions));
+        }
     }, [props.contracts]);
+
+    const transactionToWatch =
+        pendingTransactions[0] && pendingTransactions[0].hash;
+    const { data, isError } = useWaitForTransaction({
+        hash: transactionToWatch as any,
+        onSettled(data, transactionError) {
+            if (transactionError) {
+                const error = generateError(
+                    ContractError.TRANSACTION,
+                    transactionError
+                );
+                setErrorState(error);
+                throw error;
+            }
+            clearPendingTransaction(transactionToWatch);
+        },
+    });
+
+    const setDashboardTxLoading = props.setDashboardTxLoading;
+
+    const addPendingTransaction = (
+        transactionHash: string,
+        allContracts = false
+    ) => {
+        let contractsToAdd = selectedContracts;
+        if (allContracts) {
+            contractsToAdd = Object.values(contracts);
+        }
+        const pendingTransactionList = contractsToAdd.map((contract) => {
+            return {
+                hash: transactionHash,
+                contractAddress: contract.address,
+            };
+        });
+        const newPendingTransactions = [
+            ...pendingTransactions,
+            ...pendingTransactionList,
+        ];
+        setPendingTransactions(newPendingTransactions);
+        localStorage.setItem(
+            LOCAL_STORAGE_ID,
+            JSON.stringify(newPendingTransactions)
+        );
+        Object.values(contracts).forEach((contract) => {
+            if (contract.checked) {
+                contract.pending = true;
+            }
+        });
+
+        setContracts({ ...contracts });
+    };
+
+    const clearPendingTransaction = (transactionHash: string) => {
+        const newPendingTransactions = pendingTransactions.filter(
+            (transaction) => !(transaction.hash == transactionHash)
+        );
+        setPendingTransactions(newPendingTransactions);
+        localStorage.setItem(
+            LOCAL_STORAGE_ID,
+            JSON.stringify(newPendingTransactions)
+        );
+    };
 
     const allChecked =
         contracts &&
@@ -71,6 +167,10 @@ const DataTable = (props: {
     const selectedContracts =
         contracts &&
         Object.values(contracts).filter((item: ContractItem) => item.checked);
+    const pendingContracts =
+        contracts &&
+        Object.values(contracts).filter((item: ContractItem) => item.pending);
+
     const writeArgs = [
         formatAddressForContract(props.address),
         selectedContracts.map((item: ContractItem) => item.address),
@@ -84,21 +184,30 @@ const DataTable = (props: {
 
     const { write } = useContractWrite({
         ...(config as UseContractWriteConfig),
-        async onSettled(data) {
+        async onSettled(data, contractError) {
+            if (contractError) {
+                const error = generateError(
+                    ContractError.TRANSACTION,
+                    contractError
+                );
+                setErrorState(error);
+                throw error;
+            }
+            const transactionHash = data?.hash;
+            transactionHash && addPendingTransaction(transactionHash);
+            setDashboardTxLoading(false);
+            setTxLoading(false);
+
             try {
                 await data?.wait();
-                setTxLoading(false);
-                setDashboardTxLoading(false);
-
-                window.location.reload();
-            } catch (error) {
-                let cause;
-                if (error instanceof Error) {
-                    cause = error.message;
-                }
-                throw new Error(ContractError.TRANSACTION, {
-                    cause,
-                });
+                transactionHash && clearPendingTransaction(transactionHash);
+            } catch (transactionError) {
+                const error = generateError(
+                    ContractError.TRANSACTION,
+                    transactionError
+                );
+                setErrorState(error);
+                throw error;
             }
         },
     });
@@ -111,22 +220,26 @@ const DataTable = (props: {
         }
     };
 
-    const releasableTableRows = Object.keys(contracts).map((address) => {
-        const contract = contracts[address];
+    const releasableTableRows = Object.values(contracts).map((contract) => {
         return (
-            <Tr key={address}>
-                <Td>
-                    {' '}
-                    <Checkbox
-                        size={'lg'}
-                        isChecked={contract.checked}
-                        isDisabled={props.zeroFunds}
-                        onChange={() => changeState(address)}
-                    ></Checkbox>
-                </Td>
-                <Td>{truncateEthAddress(address)}</Td>
-                <Td isNumeric>{contract.funds}</Td>
-            </Tr>
+            !contract.pending && (
+                <Tr key={contract.address}>
+                    <Td>
+                        {' '}
+                        <Checkbox
+                            size={'lg'}
+                            isChecked={contract.checked}
+                            isDisabled={props.zeroFunds || contract.pending}
+                            onChange={() => changeState(contract.address)}
+                        ></Checkbox>
+                    </Td>
+                    <Td>
+                        {truncateEthAddress(contract.address)}{' '}
+                        {contract.pending.toString()}
+                    </Td>
+                    <Td isNumeric>{contract.funds}</Td>
+                </Tr>
+            )
         );
     });
 
@@ -171,12 +284,36 @@ const DataTable = (props: {
             </Tfoot>
         </Table>
     );
+
     const releasedContracts = props.releasedContracts;
-    const releasedTableRows = Object.keys(releasedContracts).map((address) => {
-        const contract = releasedContracts[address];
+
+    const releasedBadge = (
+        <Badge variant="subtle" colorScheme="green">
+            released
+        </Badge>
+    );
+    const pendingBadge = (
+        <Badge variant="subtle" colorScheme="purple">
+            pending ...
+        </Badge>
+    );
+    const releasedTableRows = Object.values(releasedContracts).map(
+        (contract) => {
+            return (
+                <Tr key={contract.address}>
+                    <Td>{truncateEthAddress(contract.address)}</Td>
+                    <Td> {releasedBadge} </Td>
+                    <Td isNumeric>{contract.funds}</Td>
+                </Tr>
+            );
+        }
+    );
+
+    const pendingContractRows = pendingContracts.map((contract) => {
         return (
-            <Tr key={address}>
-                <Td>{truncateEthAddress(address)}</Td>
+            <Tr key={contract.address}>
+                <Td>{truncateEthAddress(contract.address)}</Td>
+                <Td> {pendingBadge} </Td>
                 <Td isNumeric>{contract.funds}</Td>
             </Tr>
         );
@@ -187,10 +324,16 @@ const DataTable = (props: {
             <Thead>
                 <Tr>
                     <Th>Contract Address</Th>
+                    <Th> Status </Th>
                     <Th isNumeric>Funds Released </Th>
                 </Tr>
             </Thead>
-            <Tbody>{releasedTableRows}</Tbody>
+            <Tbody>
+                <>
+                    {pendingContractRows}
+                    {releasedTableRows}
+                </>
+            </Tbody>
         </Table>
     );
 

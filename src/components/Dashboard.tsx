@@ -30,7 +30,12 @@ import {
     usePrepareContractWrite,
 } from 'wagmi';
 
-import { ContractError, InfoModalType } from '../types';
+import {
+    ContractError,
+    DashboardWriteContractData,
+    InfoModalType,
+} from '../types';
+import { generateError } from '../utils/contract-utils';
 import {
     formatReadContractResponse,
     getRelease,
@@ -39,7 +44,8 @@ import {
     truncateFilecoinAddress,
 } from '../utils/wagmi-utils';
 import DataTable from './DataTable';
-import InfoModal from './InfoModal';
+import ErrorModal from './Modals/ErrorModal';
+import InfoModal from './Modals/InfoModal';
 
 const env = import.meta.env;
 const CHAIN_ID = parseInt(env.VITE_CHAIN_ID);
@@ -49,6 +55,12 @@ type Address = `0x${string}`;
 
 const UserDashboard = (props: { address: string }) => {
     const [mounted, setMounted] = useState(false);
+    const [pending, setAllPending] = useState<string | null>(null);
+    const [error, setErrorState] = useState<Error | null>(null);
+
+    const [fetchedData, setFetchedData] = useState<
+        DashboardWriteContractData | undefined
+    >(undefined);
 
     useEffect(() => {
         setMounted(true);
@@ -62,6 +74,13 @@ const UserDashboard = (props: { address: string }) => {
             disconnect();
         }
     }, [chain]);
+
+    const handleError = (message: string, error: unknown) => {
+        const generatedError = generateError(ContractError.TRANSACTION, error);
+        setErrorState(generatedError);
+        throw generatedError;
+    };
+
     const address = props.address;
     const { address: walletAddress, connector, status } = useAccount();
     if (status === 'disconnected') {
@@ -75,36 +94,45 @@ const UserDashboard = (props: { address: string }) => {
     const contractFuncs = address && (getUserInfo(address) as any);
     const { data, isLoading } = useContractReads({
         contracts: contractFuncs,
-        select: (data) => formatReadContractResponse(data),
+        select: (data) => formatReadContractResponse(data, pending),
+        watch: true,
     });
 
+    useEffect(() => {
+        setFetchedData(data);
+    }, [data]);
     const { config } = usePrepareContractWrite(getRelease(address) as object);
 
     const [txLoading, setTxLoading] = useState(false);
 
-    const {
-        data: writeData,
-        isLoading: contractLoading,
-        write,
-    } = useContractWrite({
+    const { isLoading: contractLoading, write } = useContractWrite({
         ...(config as UseContractWriteConfig),
-        async onSettled(data) {
+        async onSettled(data, contractError) {
+            if (contractError) {
+                const error = generateError(
+                    ContractError.TRANSACTION,
+                    contractError
+                );
+                setErrorState(error);
+                throw error;
+            }
+            setTxLoading(false);
+            data && setAllPending(data.hash);
             try {
                 await data?.wait();
-                setTxLoading(false);
-                window.location.reload();
-            } catch (error) {
-                let cause;
-                if (error instanceof Error) {
-                    cause = error.message;
+                setAllPending(null);
+            } catch (transactionError) {
+                if (transactionError) {
+                    const error = generateError(
+                        ContractError.TRANSACTION,
+                        transactionError
+                    );
+                    setErrorState(error);
+                    throw error;
                 }
-                throw new Error(ContractError.TRANSACTION, {
-                    cause,
-                });
             }
         },
     });
-
     const writeContract = () => {
         if (write) {
             setTxLoading(true);
@@ -184,38 +212,45 @@ const UserDashboard = (props: { address: string }) => {
         </>
     );
 
-    const stats = data && (
+    const stats = fetchedData && (
         <>
             <StatGroup mb={5} mt={4}>
                 <Stat>
                     <StatLabel>
                         <Heading size="sm"> Total Earnings</Heading>
                     </StatLabel>
-                    <StatNumber> {data.stats.shares} FIL </StatNumber>
+                    <StatNumber> {fetchedData.stats.shares} FIL </StatNumber>
                 </Stat>
                 <Stat>
                     <StatLabel>
                         <Heading size="sm"> Released Earnings</Heading>
                     </StatLabel>
-                    <StatNumber>{data.stats.released} FIL</StatNumber>
+                    <StatNumber>{fetchedData.stats.released} FIL</StatNumber>
                 </Stat>
                 <Stat>
                     <StatLabel>
                         <Heading size="sm"> Claimable Earnings</Heading>
                     </StatLabel>
-                    <StatNumber> {data.stats.releasable} FIL </StatNumber>
+                    <StatNumber>
+                        {' '}
+                        {fetchedData.stats.releasable} FIL{' '}
+                    </StatNumber>
                 </Stat>
             </StatGroup>
         </>
     );
 
+    const errorModal = error ? <ErrorModal error={error} modalOpen /> : null;
+
     if (!mounted) {
         return null;
     }
+    // console.log(fetchedData?.releasableContracts);
 
     return (
         <Center>
             {infoModal}
+            {errorModal}
             <Card w="100%" maxW={'1200px'} p="4" m={6}>
                 <CardHeader w="100%">
                     <Stack
@@ -240,9 +275,11 @@ const UserDashboard = (props: { address: string }) => {
                                 <Button
                                     isLoading={txLoading || contractLoading}
                                     isDisabled={
-                                        !data ||
+                                        !fetchedData ||
                                         hasZeroBalance ||
-                                        parseFloat(data.stats.releasable) === 0
+                                        parseFloat(
+                                            fetchedData.stats.releasable
+                                        ) === 0
                                     }
                                     loadingText="Releasing Funds"
                                     onClick={() => writeContract()}
@@ -253,12 +290,16 @@ const UserDashboard = (props: { address: string }) => {
                             </Box>
 
                             <DataTable
-                                contracts={data?.releasableContracts || {}}
+                                contracts={
+                                    fetchedData?.releasableContracts || {}
+                                }
                                 releasedContracts={
-                                    data?.releasedContracts || {}
+                                    fetchedData?.releasedContracts || {}
                                 }
                                 zeroFunds={hasZeroBalance}
+                                allPendingHash={pending}
                                 setDashboardTxLoading={setTxLoading}
+                                setErrorState={setErrorState}
                                 address={address}
                             />
                         </VStack>
