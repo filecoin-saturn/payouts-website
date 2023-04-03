@@ -25,8 +25,6 @@ import { Connector } from 'wagmi';
 
 import { truncateEthAddress } from '../utils/wagmi-utils';
 
-// 0xe058CfF7D4eA8B3d0B2682D7c76035988fb4A7b5
-
 function WalletForm(props: { address: string; connector: Connector }) {
     const [userAddress, setUserAddress] = useState<string | undefined>(
         undefined
@@ -60,12 +58,12 @@ function WalletForm(props: { address: string; connector: Connector }) {
     const selectionButtonGroup = (
         <>
             <ModalBody>
-                <Heading size="lg" m={4}>
+                <Heading size="lg" m={4} color="whiteAlpha.800">
                     Connected Wallet Address:{' '}
                     {truncateEthAddress(props.address)}
                 </Heading>
                 <Divider mb={4} />
-                <Text fontSize={'xl'}>
+                <Text fontSize={'xl'} color="whiteAlpha.800">
                     You have successfully connected with your wallet! This
                     wallet will be used to sign and claim earnigns for your
                     filecoin address. Make sure you have funds in your wallet so
@@ -78,6 +76,9 @@ function WalletForm(props: { address: string; connector: Connector }) {
             <ModalFooter>
                 <ButtonGroup spacing={4}>
                     <Button
+                        backgroundColor={'saturn.button'}
+                        _hover={{ bg: 'saturn.button' }}
+                        textColor="whiteAlpha.800"
                         leftIcon={<EditIcon />}
                         onClick={() => setChangeAddress(true)}
                     >
@@ -91,20 +92,24 @@ function WalletForm(props: { address: string; connector: Connector }) {
     const addressSubmitForm = (
         <>
             <ModalBody>
-                <Text fontSize={'xl'} mb={4}>
+                <Text fontSize={'xl'} mb={4} color="whiteAlpha.800">
                     Please insert the filecoin address that you will be claiming
                     for earnings for.
                 </Text>
                 <FormControl isRequired isInvalid={formValid === false}>
-                    <FormLabel aria-label="Wallet Address">
+                    <FormLabel
+                        color="whiteAlpha.800"
+                        aria-label="Wallet Address"
+                    >
                         Filecoin Address
                     </FormLabel>
                     <Input
+                        color="whiteAlpha.800"
                         onChange={onAddressChange}
                         placeholder="Filecoin Address"
                     />
                     {formValid === true ? (
-                        <FormHelperText>
+                        <FormHelperText color="whiteAlpha.800">
                             Enter a valid Filecoin address.
                         </FormHelperText>
                     ) : (
@@ -119,6 +124,9 @@ function WalletForm(props: { address: string; connector: Connector }) {
                     <Button
                         mt={4}
                         type="submit"
+                        backgroundColor={'saturn.button'}
+                        _hover={{ bg: 'saturn.button' }}
+                        textColor="whiteAlpha.800"
                         leftIcon={<ArrowBackIcon />}
                         onClick={() => {
                             setChangeAddress(false);
@@ -131,6 +139,9 @@ function WalletForm(props: { address: string; connector: Connector }) {
                     <Button
                         leftIcon={<CheckIcon />}
                         mt={4}
+                        backgroundColor={'saturn.button'}
+                        _hover={{ bg: 'saturn.button' }}
+                        textColor="whiteAlpha.800"
                         isDisabled={!userAddress}
                         type="submit"
                         onClick={() => setSubmitted(true)}
@@ -145,9 +156,13 @@ function WalletForm(props: { address: string; connector: Connector }) {
     return (
         <Modal isOpen size={'4xl'} onClose={() => console.log('form close')}>
             <ModalOverlay />
-            <ModalContent padding={5}>
+            <ModalContent padding={5} backgroundColor="saturn.component">
                 <ModalHeader padding={3}>
-                    <Heading textAlign="center" size="2xl">
+                    <Heading
+                        textAlign="center"
+                        size="2xl"
+                        color="whiteAlpha.800"
+                    >
                         Confirm Wallet Connection
                     </Heading>
                 </ModalHeader>
