@@ -2,6 +2,7 @@ import {
     Button,
     Center,
     Heading,
+    Text,
     UseToastOptions,
     VStack,
 } from '@chakra-ui/react';
@@ -44,10 +45,10 @@ const WalletConnect = () => {
     });
 
     return (
-        <Center w="100%" h="100vh">
+        <Center w="100%" h="100vh" backgroundColor={'saturn.background'}>
             <VStack
                 maxWidth={'800px'}
-                backgroundColor={'whiteAlpha.200'}
+                backgroundColor={'saturn.component'}
                 padding={8}
                 rounded="md"
                 spacing="8"
@@ -61,16 +62,21 @@ const WalletConnect = () => {
                         isLoading={
                             isLoading && connector.id === pendingConnector?.id
                         }
+                        rounded="2xl"
+                        variant={'outline'}
                         loadingText="Connecting"
+                        _hover={{ bg: 'saturn.button' }}
                         spinnerPlacement="end"
                         w="400px"
                         h="70px"
                         size={'lg'}
                         onClick={() => userConnect(connector)}
                     >
-                        {connector.name}
-                        {!connector.ready}
-                        {isLoading}
+                        <Text color={'whiteAlpha.800'}>
+                            {connector.name}
+                            {!connector.ready}
+                            {isLoading}
+                        </Text>
                     </Button>
                 ))}
             </VStack>

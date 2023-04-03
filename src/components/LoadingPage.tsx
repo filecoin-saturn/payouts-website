@@ -4,7 +4,7 @@ import { BiPlanet } from 'react-icons/bi';
 import { CiSatellite1 } from 'react-icons/ci';
 const LoadingPage = () => {
     return (
-        <Box h="100vh" w="100%">
+        <Box h="100vh" w="100%" backgroundColor={'saturn.background'}>
             <Center h="100%">
                 <Box position={'relative'} bottom="0" right="-140px">
                     <Icon

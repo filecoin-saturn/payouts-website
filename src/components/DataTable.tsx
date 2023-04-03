@@ -244,10 +244,10 @@ const DataTable = (props: {
     });
 
     const contractsTable = (
-        <Table variant="striped">
+        <Table variant="simple">
             <Thead>
                 <Tr>
-                    <Th alignContent={'center'}>
+                    <Th color="whiteAlpha.700" alignContent={'center'}>
                         <Checkbox
                             size="lg"
                             isChecked={allChecked}
@@ -258,8 +258,10 @@ const DataTable = (props: {
                             Selected
                         </Checkbox>
                     </Th>
-                    <Th>Contract Address</Th>
-                    <Th isNumeric>Funds Available </Th>
+                    <Th color="whiteAlpha.700">Contract Address</Th>
+                    <Th color="whiteAlpha.700" isNumeric>
+                        Funds Available{' '}
+                    </Th>
                 </Tr>
             </Thead>
             <Tbody>{releasableTableRows}</Tbody>
@@ -274,8 +276,10 @@ const DataTable = (props: {
                             onClick={() => writeContract()}
                             isLoading={txLoading}
                             float="right"
+                            color="blackAlpha.800"
                             loadingText="Sending Transactions"
                             mt={4}
+                            mr={-4}
                         >
                             Release Selected
                         </Button>
@@ -320,12 +324,14 @@ const DataTable = (props: {
     });
 
     const releasedContractsTable = (
-        <Table variant="striped">
+        <Table variant="simple">
             <Thead>
                 <Tr>
-                    <Th>Contract Address</Th>
-                    <Th> Status </Th>
-                    <Th isNumeric>Funds Released </Th>
+                    <Th color="whiteAlpha.700">Contract Address</Th>
+                    <Th color="whiteAlpha.700"> Status </Th>
+                    <Th color="whiteAlpha.700" isNumeric>
+                        Funds Released{' '}
+                    </Th>
                 </Tr>
             </Thead>
             <Tbody>
@@ -349,9 +355,8 @@ const DataTable = (props: {
             width={'100%'}
             mt={5}
             rounded="md"
-            borderColor="gray.200"
-            borderWidth="1px"
-            padding={2}
+            borderWidth="0.5px"
+            padding={4}
         >
             <Heading m={3} size="md">
                 Claimable Transactions

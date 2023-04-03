@@ -219,19 +219,23 @@ const UserDashboard = (props: { address: string }) => {
                     <StatLabel>
                         <Heading size="sm"> Total Earnings</Heading>
                     </StatLabel>
-                    <StatNumber> {fetchedData.stats.shares} FIL </StatNumber>
+                    <StatNumber color="whiteAlpha.800">
+                        {fetchedData.stats.shares} FIL
+                    </StatNumber>
                 </Stat>
                 <Stat>
                     <StatLabel>
                         <Heading size="sm"> Released Earnings</Heading>
                     </StatLabel>
-                    <StatNumber>{fetchedData.stats.released} FIL</StatNumber>
+                    <StatNumber color="whiteAlpha.800">
+                        {fetchedData.stats.released} FIL
+                    </StatNumber>
                 </Stat>
                 <Stat>
                     <StatLabel>
                         <Heading size="sm"> Claimable Earnings</Heading>
                     </StatLabel>
-                    <StatNumber>
+                    <StatNumber color="whiteAlpha.800">
                         {' '}
                         {fetchedData.stats.releasable} FIL{' '}
                     </StatNumber>
@@ -251,7 +255,13 @@ const UserDashboard = (props: { address: string }) => {
         <Center>
             {infoModal}
             {errorModal}
-            <Card w="100%" maxW={'1200px'} p="4" m={6}>
+            <Card
+                w="100%"
+                maxW={'1200px'}
+                p="4"
+                m={6}
+                backgroundColor="saturn.component"
+            >
                 <CardHeader w="100%">
                     <Stack
                         mt={5}
@@ -261,7 +271,7 @@ const UserDashboard = (props: { address: string }) => {
                     >
                         {header}
                     </Stack>
-                    <Divider mt={1} mb={2} />
+                    <Divider mt={1} mb={2} borderColor="saturn.component" />
 
                     <CardBody>
                         {isLoading ? loadingSkeleton : stats}

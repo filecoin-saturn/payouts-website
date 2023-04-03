@@ -16,7 +16,7 @@ function Page() {
     );
     return (
         <Box
-            backgroundColor={'blackAlpha.900'}
+            backgroundColor={'saturn.background'}
             display="flex"
             minH={'100vh'}
             flexDirection="column"
