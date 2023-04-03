@@ -65,6 +65,7 @@ const WalletConnect = () => {
                         rounded="2xl"
                         variant={'outline'}
                         loadingText="Connecting"
+                        color="whiteAlpha.800"
                         _hover={{ bg: 'saturn.button' }}
                         spinnerPlacement="end"
                         w="400px"
