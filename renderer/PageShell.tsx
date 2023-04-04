@@ -14,13 +14,16 @@ function PageShell({
     children: React.ReactNode;
     pageContext: PageContext;
 }) {
+    console.log(client);
     return (
         <React.StrictMode>
-            <ChakraProvider>
-                <PageContextProvider pageContext={pageContext}>
-                    <WagmiConfig client={client}>{children}</WagmiConfig>
-                </PageContextProvider>
-            </ChakraProvider>
+            <WagmiConfig client={client}>
+                <ChakraProvider>
+                    <PageContextProvider pageContext={pageContext}>
+                        {children}
+                    </PageContextProvider>
+                </ChakraProvider>
+            </WagmiConfig>
         </React.StrictMode>
     );
 }

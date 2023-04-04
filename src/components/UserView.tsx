@@ -1,8 +1,10 @@
 import { Box, Image } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { connect } from '@wagmi/core';
+import React, { useEffect, useState } from 'react';
 import { useAccount, useNetwork, useSwitchNetwork } from 'wagmi';
 
 import saturnLogo from '../assets/SaturnLogoWithWord.png';
+import { connectors } from '../utils/wagmi-utils';
 import AddressChangeForm from './AddressChangeForm';
 import LoadingPage from './LoadingPage';
 import WalletConnect from './WalletConnect';
@@ -11,17 +13,54 @@ const CHAIN_ID = parseInt(import.meta.env.VITE_CHAIN_ID);
 
 const UserView = () => {
     const [firstLoad, setFirstLoad] = useState(false);
-    const { address, connector, isConnected, status } = useAccount();
+
+    const [dummy, setTest] = useState({});
+    console.log(dummy);
     const { chain } = useNetwork();
     const { switchNetwork } = useSwitchNetwork();
 
+    // if (!isConnected) {
+    //     connectors.injected.connect({
+    //         chainId: CHAIN_ID,
+    //     });
+    // }
+
     useEffect(() => {
-        if (chain) {
-            if (chain.id !== CHAIN_ID) {
-                switchNetwork?.(CHAIN_ID);
-            }
-        }
-    }, [address, chain, switchNetwork]);
+        const testConnect = async () => {
+            const test = await connectors.injected.connect({
+                chainId: CHAIN_ID,
+            });
+            const account = await connectors.injected.getAccount();
+            console.log(test);
+            console.log(account);
+            setTest({ test: 1 });
+        };
+
+        const connect2 = async () => {
+            await connect({
+                chainId: CHAIN_ID,
+                connector: connectors.injected,
+            });
+        };
+        const checkConnection = localStorage.getItem('wagmi.connected');
+        const connectedWallet = localStorage.getItem('wagmi.wallet');
+        // console.log(checkConnection === 'true');
+        // console.log(connectedWallet === '"injected"');
+        console.log(checkConnection, connectedWallet);
+        // if (checkConnection && connectedWallet == 'injected') {
+        //     console.log('here');
+        // }
+        testConnect().catch((err) => console.log(err));
+        connect2().catch((err) => console.log(err));
+        // if (chain) {
+        //     if (chain.id !== CHAIN_ID) {
+        //         switchNetwork?.(CHAIN_ID);
+        //     }
+        // }
+    }, [chain, switchNetwork]);
+
+    const { address, connector, isConnected, status } = useAccount();
+    console.log(address, isConnected, status);
 
     useEffect(() => {
         if (!firstLoad && status !== 'connecting') {
@@ -56,4 +95,4 @@ const UserView = () => {
     );
 };
 
-export default UserView;
+export default React.memo(UserView);

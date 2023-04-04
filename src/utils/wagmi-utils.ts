@@ -35,32 +35,34 @@ const { chains, provider, webSocketProvider } = configureChains(
     supportedChains,
     [publicProvider()]
 );
+export const connectors = {
+    metamask: new MetaMaskConnector({ chains }),
+    coinbase: new CoinbaseWalletConnector({
+        chains,
+        options: {
+            appName: 'wagmi',
+        },
+    }),
+    walletconnect: new WalletConnectConnector({
+        chains,
+        options: {
+            qrcode: true,
+        },
+    }),
+    injected: new InjectedConnector({
+        chains,
+        options: {
+            // name: 'Browser Detected Wallet',
+            shimDisconnect: true,
+            shimChainChangedDisconnect: false,
+        },
+    }),
+};
 
 // Set up client
 export const client = createClient({
     autoConnect: true,
-    connectors: [
-        new MetaMaskConnector({ chains }),
-        new CoinbaseWalletConnector({
-            chains,
-            options: {
-                appName: 'wagmi',
-            },
-        }),
-        new WalletConnectConnector({
-            chains,
-            options: {
-                qrcode: true,
-            },
-        }),
-        new InjectedConnector({
-            chains,
-            options: {
-                name: 'Browser Detected Wallet',
-                shimDisconnect: true,
-            },
-        }),
-    ],
+    connectors: Object.values(connectors),
     provider,
     webSocketProvider,
 });

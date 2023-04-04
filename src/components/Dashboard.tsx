@@ -18,10 +18,12 @@ import {
     Text,
     VStack,
 } from '@chakra-ui/react';
+import { connect } from '@wagmi/core';
 import { useEffect, useState } from 'react';
 import {
     useAccount,
     useBalance,
+    useConnect,
     useContractReads,
     useContractWrite,
     UseContractWriteConfig,
@@ -37,6 +39,7 @@ import {
 } from '../types';
 import { generateError } from '../utils/contract-utils';
 import {
+    connectors,
     formatReadContractResponse,
     getRelease,
     getUserInfo,
@@ -57,10 +60,14 @@ const UserDashboard = (props: { address: string }) => {
     const [mounted, setMounted] = useState(false);
     const [pending, setAllPending] = useState<string | null>(null);
     const [error, setErrorState] = useState<Error | null>(null);
-
     const [fetchedData, setFetchedData] = useState<
         DashboardWriteContractData | undefined
     >(undefined);
+
+    const { connect, connectors: test } = useConnect({
+        chainId: parseInt(env.VITE_CHAIN_ID),
+        connector: connectors.injected,
+    });
 
     useEffect(() => {
         setMounted(true);
@@ -70,22 +77,36 @@ const UserDashboard = (props: { address: string }) => {
     const { chain } = useNetwork();
 
     useEffect(() => {
-        if (chain?.id != CHAIN_ID) {
-            disconnect();
+        // const connect2 = async () => {
+        //     const test = await connect({
+        //         chainId: CHAIN_ID,
+        //         connector: connectors.injected,
+        //     });
+        //     console.log(test);
+        // };
+
+        // connect2().catch((err) => console.log(err));
+        connect();
+
+        if (chain) {
+            if (chain.id != CHAIN_ID) {
+                disconnect();
+            }
         }
     }, [chain]);
 
     const handleError = (message: string, error: unknown) => {
-        const generatedError = generateError(ContractError.TRANSACTION, error);
+        const generatedError = generateError(message, error);
         setErrorState(generatedError);
         throw generatedError;
     };
 
     const address = props.address;
     const { address: walletAddress, connector, status } = useAccount();
-    if (status === 'disconnected') {
-        window.location.href = '/connect';
-    }
+    console.log(walletAddress, connector, status);
+    // if (status === 'disconnected') {
+    //     window.location.href = '/connect';
+    // }
 
     const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
         address: walletAddress as Address,
@@ -105,7 +126,12 @@ const UserDashboard = (props: { address: string }) => {
 
     const [txLoading, setTxLoading] = useState(false);
 
-    const { isLoading: contractLoading, write } = useContractWrite({
+    const {
+        isLoading: contractLoading,
+        write,
+        status: stat,
+        isLoading: load,
+    } = useContractWrite({
         ...(config as UseContractWriteConfig),
         async onSettled(data, contractError) {
             if (contractError) {
@@ -133,6 +159,8 @@ const UserDashboard = (props: { address: string }) => {
             }
         },
     });
+
+    // console.log(write, stat, load);
     const writeContract = () => {
         if (write) {
             setTxLoading(true);

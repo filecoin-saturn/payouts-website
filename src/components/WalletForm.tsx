@@ -19,8 +19,6 @@ import { getContract, readUserInfo } from '../utils/contract-utils';
 import FundRelease from './FundRelease';
 import ErrorModal from './Modals/ErrorModal';
 
-// 0xe058CfF7D4eA8B3d0B2682D7c76035988fb4A7b5
-
 function WalletForm() {
     const [userAddress, setUserAddress] = useState<string>('');
 
