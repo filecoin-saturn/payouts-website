@@ -10,6 +10,7 @@ import { useToast } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { Connector, useConnect } from 'wagmi';
 
+import SaturnBackground from '../assets/SaturnBackground.png';
 import { switchNetwork } from '../utils/contract-utils';
 const env = import.meta.env;
 
@@ -45,7 +46,14 @@ const WalletConnect = () => {
     });
 
     return (
-        <Center w="100%" h="100vh" backgroundColor={'saturn.background'}>
+        <Center
+            w="100%"
+            h="100vh"
+            backgroundColor={'saturn.background'}
+            backgroundImage={{ base: '', md: SaturnBackground }}
+            backgroundRepeat="no-repeat"
+            backgroundPosition={'right top'}
+        >
             <VStack
                 maxWidth={'800px'}
                 backgroundColor={'saturn.component'}
