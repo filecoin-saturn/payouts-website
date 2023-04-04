@@ -42,13 +42,18 @@ const InfoModal = (props: InfoModalProps) => {
                 <ModalContent>
                     <ModalHeader>
                         <HStack>
-                            <Heading size={'lg'}> {props.title} </Heading>
+                            <Heading color="blackAlpha.800" size={'lg'}>
+                                {' '}
+                                {props.title}{' '}
+                            </Heading>
                             <WarningIcon w={8} h={8} color={warningIconColor} />
                         </HStack>
                     </ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <Text fontSize={'xl'}>{props.message}</Text>
+                        <Text color="blackAlpha.800" fontSize={'xl'}>
+                            {props.message}
+                        </Text>
                     </ModalBody>
 
                     <ModalFooter>

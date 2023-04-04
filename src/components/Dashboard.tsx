@@ -167,9 +167,10 @@ const UserDashboard = (props: { address: string }) => {
     let infoModal;
     if (hasZeroBalance) {
         const gasFeeMessage =
-            'To claim earnings you must have FIL to cover gas fees' +
+            'To claim earnings you must have FIL to cover gas fees.' +
             ' your account balance is currently zero so you will only be able to view but not claim' +
-            ' earnings. To claim earnings, please transfer some FIL in your account to cover gas fees.';
+            ' earnings. To claim earnings, please transfer some FIL into the' +
+            ' account you connected with or you can choose a different account and reload the page.';
 
         infoModal = (
             <InfoModal

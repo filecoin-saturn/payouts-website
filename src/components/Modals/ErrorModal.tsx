@@ -40,7 +40,10 @@ const ErrorModal = (props: ErrorModalProps) => {
                 <ModalContent>
                     <ModalHeader>
                         <HStack>
-                            <Heading size={'lg'}> Error </Heading>
+                            <Heading color="blackAlpha.800" size={'lg'}>
+                                {' '}
+                                Error{' '}
+                            </Heading>
                             <WarningIcon w={8} h={8} color={'red.600'} />
                         </HStack>
                     </ModalHeader>
@@ -50,14 +53,16 @@ const ErrorModal = (props: ErrorModalProps) => {
                             <AccordionItem>
                                 <h2>
                                     <AccordionButton>
-                                        <Text>{error.message}</Text>
+                                        <Text color="blackAlpha.800">
+                                            {error.message}
+                                        </Text>
                                     </AccordionButton>
                                 </h2>
                             </AccordionItem>
 
                             <AccordionItem>
                                 <h2>
-                                    <AccordionButton>
+                                    <AccordionButton color="blackAlpha.800">
                                         View Original Message
                                         <AccordionIcon />
                                     </AccordionButton>
