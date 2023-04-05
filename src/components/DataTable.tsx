@@ -233,10 +233,7 @@ const DataTable = (props: {
                             onChange={() => changeState(contract.address)}
                         ></Checkbox>
                     </Td>
-                    <Td>
-                        {truncateEthAddress(contract.address)}{' '}
-                        {contract.pending.toString()}
-                    </Td>
+                    <Td>{truncateEthAddress(contract.address)}</Td>
                     <Td isNumeric>{contract.funds}</Td>
                 </Tr>
             )
