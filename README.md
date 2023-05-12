@@ -24,7 +24,7 @@ This repo is dedicated for the design of the interfaces used for interacting wit
 
 To install Node and `npm`, [this](https://github.com/nvm-sh/nvm) is a great tool. 
 <pre>
-  git clone git@github.com:retrieval-markets-lab/contract-interface.git
+  git clone git@github.com:filecoin-saturn/contracts-ui.git
   cd contract-interface
   npm i
   npm run dev
