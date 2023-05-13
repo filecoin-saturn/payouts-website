@@ -38,9 +38,11 @@ const UserView = () => {
         view = <WalletConnect />;
     }
     const logo = (
-        <Box maxW={'250px'} p={6} position="absolute">
-            <Image src={saturnLogo} alt="Saturn Logo" />
-        </Box>
+        <a href="https://saturn.tech/">
+            <Box maxW={'250px'} p={6} position="absolute">
+                <Image src={saturnLogo} alt="Saturn Logo" />
+            </Box>
+        </a>
     );
     return (
         <Box
