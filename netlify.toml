@@ -9,3 +9,13 @@ directory = "functions/"
 from = "/*"
 to = "/.netlify/functions/index"
 status = 200
+
+[[redirects]]
+from = "https://payments.saturn.tech/*"
+to = "https://payouts.saturn.tech/*"
+status = 301
+
+[[redirects]]
+from = "https://payments.strn.network/*"
+to = "https://payouts.saturn.tech/*"
+status = 301
