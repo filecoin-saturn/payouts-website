@@ -1,12 +1,7 @@
 import { newFromString } from '@glif/filecoin-address';
 import { hexlify } from 'ethers/lib/utils.js';
 import { Chain, configureChains, createClient } from 'wagmi';
-import {
-    filecoin,
-    filecoinCalibration,
-    filecoinHyperspace,
-    localhost,
-} from 'wagmi/chains';
+import { filecoin, filecoinHyperspace, localhost } from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
@@ -28,6 +23,39 @@ const localhostChain = JSON.parse(JSON.stringify(localhost));
 if (!env.VITE_PRODUCTION) {
     localhostChain.id = parseInt(import.meta.env.VITE_CHAIN_ID);
 }
+
+const filecoinCalibration: Chain = {
+    id: 314159,
+    name: 'Filecoin Calibration',
+    network: 'filecoin-calibration',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'testnet filecoin',
+        symbol: 'tFIL',
+    },
+    rpcUrls: {
+        default: {
+            http: ['https://api.calibration.node.glif.io/rpc/v1'],
+        },
+        public: {
+            http: ['https://api.calibration.node.glif.io/rpc/v1'],
+        },
+    },
+    blockExplorers: {
+        default: {
+            name: 'Filfox',
+            url: 'https://calibration.filfox.info/en',
+        },
+        filscan: {
+            name: 'Filscan',
+            url: 'https://calibration.filscan.io',
+        },
+    },
+};
+
+// Out
+const CLAIM_OFFSET = 0;
+
 const localChains = [localhostChain, filecoinHyperspace, filecoinCalibration];
 const productionChains = [filecoin, filecoinHyperspace, filecoinCalibration];
 const supportedChains = (
@@ -81,7 +109,7 @@ export function getRelease(address: string) {
     return {
         ...factoryContract,
         functionName: 'releaseAll',
-        args: [addr],
+        args: [addr, CLAIM_OFFSET],
     };
 }
 
@@ -97,7 +125,9 @@ export function formatReadContractResponse(
 
     const stats = {
         released: statArray[0],
-        shares: statArray[0] + statArray[1],
+        shares: (
+            parseFloat(statArray[0]) + parseFloat(statArray[1])
+        ).toString(),
         releasable: statArray[1],
     };
 
@@ -111,6 +141,7 @@ export function formatReadContractResponse(
                 funds: contractFunds,
                 checked: false,
                 pending: pending ? true : false,
+                index: idx,
             };
             if (parseFloat(contractFunds) === 0) {
                 contractItem.funds = parseHexObject(released[idx], true);
