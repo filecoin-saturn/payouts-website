@@ -1,7 +1,12 @@
 import { newFromString } from '@glif/filecoin-address';
 import { hexlify } from 'ethers/lib/utils.js';
 import { Chain, configureChains, createClient } from 'wagmi';
-import { filecoin, filecoinHyperspace, localhost } from 'wagmi/chains';
+import {
+    filecoin,
+    filecoinCalibration,
+    filecoinHyperspace,
+    localhost,
+} from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
@@ -23,8 +28,8 @@ const localhostChain = JSON.parse(JSON.stringify(localhost));
 if (!env.VITE_PRODUCTION) {
     localhostChain.id = parseInt(import.meta.env.VITE_CHAIN_ID);
 }
-const localChains = [localhostChain, filecoinHyperspace];
-const productionChains = [filecoin, filecoinHyperspace];
+const localChains = [localhostChain, filecoinHyperspace, filecoinCalibration];
+const productionChains = [filecoin, filecoinHyperspace, filecoinCalibration];
 const supportedChains = (
     env.VITE_PRODUCTION ? productionChains : localChains
 ) as Array<Chain>;
