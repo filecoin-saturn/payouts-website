@@ -1,6 +1,6 @@
 interface ContractStats {
-    shares: string;
     releasable: string;
+    shares: string;
     released: string;
 }
 

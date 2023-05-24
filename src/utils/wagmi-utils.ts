@@ -90,18 +90,18 @@ export function formatReadContractResponse(
     pending: string | null
 ): DashboardWriteContractData {
     const statArray = data
-        ?.slice(0, 3)
+        ?.slice(0, 2)
         .map((item) => parseHexObject(item as HexResponse, true));
     const releasedContracts: DashboardContracts = {};
     const releasableContracts: DashboardContracts = {};
 
     const stats = {
         released: statArray[0],
-        shares: statArray[1],
-        releasable: statArray[2],
+        shares: statArray[0] + statArray[1],
+        releasable: statArray[1],
     };
 
-    const [contracts, releasable, released] = data[3];
+    const [contracts, releasable, released] = data[2];
     contracts.forEach((address: string, idx: number) => {
         // Ignore zero address
         if (parseInt(address) > 0) {
@@ -129,12 +129,7 @@ export function formatReadContractResponse(
 export function getUserInfo(address: string) {
     const functionReads: Array<object> = [];
 
-    const functionsToRead = [
-        'released',
-        'shares',
-        'releasable',
-        'releasablePerContract',
-    ];
+    const functionsToRead = ['released', 'releasable', 'releasablePerContract'];
 
     const addr = formatAddressForContract(address);
 
