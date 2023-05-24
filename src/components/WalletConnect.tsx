@@ -1,7 +1,10 @@
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 import {
+    Box,
     Button,
     Center,
     Heading,
+    Link,
     Text,
     UseToastOptions,
     VStack,
@@ -61,8 +64,12 @@ const WalletConnect = () => {
                 rounded="md"
                 spacing="8"
             >
-                <Heading size='xl' color={'whiteAlpha.900'}>Claim your Saturn node earnings</Heading>
-                <Heading size='md' color={'whiteAlpha.900'}>To begin, securely connect your Filecoin wallet below</Heading>
+                <Heading size="xl" color={'whiteAlpha.900'}>
+                    Claim your Saturn node earnings
+                </Heading>
+                <Heading size="md" color={'whiteAlpha.900'}>
+                    To begin, securely connect your Filecoin wallet below
+                </Heading>
 
                 {connectors.map((connector) => (
                     <Button
@@ -89,6 +96,14 @@ const WalletConnect = () => {
                         </Text>
                     </Button>
                 ))}
+                <Box>
+                    <Heading size="md" color={'whiteAlpha.900'}>
+                        <Link href="https://docs.saturn.tech/claim-your-rewards">
+                            Documentation available here!{' '}
+                            <ExternalLinkIcon mx="2px" />
+                        </Link>
+                    </Heading>
+                </Box>
             </VStack>
         </Center>
     );
