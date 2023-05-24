@@ -45,12 +45,18 @@ const DataTable = (props: {
     setDashboardTxLoading: Dispatch<SetStateAction<boolean>>;
     setErrorState: Dispatch<SetStateAction<Error | null>>;
 }) => {
-    const [contracts, setContracts] = useState(props.contracts);
+    const [contracts, setContracts] = useState(
+        props.contracts ? props.contracts : {}
+    );
     const [txLoading, setTxLoading] = useState<boolean>(false);
     const [pendingTransactions, setPendingTransactions] = useState<
         Array<PendingTransaction>
     >([]);
     const setErrorState = props.setErrorState;
+
+    const releasedContracts = props.releasedContracts
+        ? props.releasedContracts
+        : {};
 
     useEffect(() => {
         if (props.allPendingHash) {
@@ -148,6 +154,7 @@ const DataTable = (props: {
             (contract: ContractItem) => contract.checked
         ) &&
         !allChecked;
+
     const changeState = (address: string) => {
         const newState = !contracts[address].checked;
         contracts[address].checked = newState;
@@ -158,7 +165,9 @@ const DataTable = (props: {
 
     const selectAll = () => {
         Object.keys(contracts).forEach((address) => {
-            contracts[address].checked = !allChecked;
+            if (address in contracts) {
+                contracts[address].checked = !allChecked;
+            }
         });
 
         setContracts({ ...contracts });
@@ -171,9 +180,11 @@ const DataTable = (props: {
         contracts &&
         Object.values(contracts).filter((item: ContractItem) => item.pending);
 
+    console.log('Pending contracts', pendingContracts);
+
     const writeArgs = [
         formatAddressForContract(props.address),
-        selectedContracts.map((item: ContractItem) => item.address),
+        selectedContracts.map((item: ContractItem) => item.index),
     ];
 
     const { config } = usePrepareContractWrite({
@@ -286,8 +297,6 @@ const DataTable = (props: {
         </Table>
     );
 
-    const releasedContracts = props.releasedContracts;
-
     const releasedBadge = (
         <Badge variant="subtle" colorScheme="green">
             released
@@ -341,7 +350,10 @@ const DataTable = (props: {
     );
 
     const isContracts = Object.keys(contracts).length > 0;
-    const isReleasedContracts = Object.keys(releasedContracts).length > 0;
+    const isReleasedContracts =
+        Object.keys(releasedContracts).length > 0 ||
+        pendingContracts.length > 0;
+
     const noRowsText = (
         <Text mt={5} mb={5} textAlign="center" color="gray.400">
             No funds available to show

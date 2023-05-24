@@ -1,6 +1,6 @@
 interface ContractStats {
-    shares: string;
     releasable: string;
+    shares: string;
     released: string;
 }
 
@@ -45,6 +45,7 @@ export interface ContractItem {
     funds: string;
     checked: boolean;
     pending: boolean;
+    index: number;
 }
 
 export interface DashboardWriteContractData {

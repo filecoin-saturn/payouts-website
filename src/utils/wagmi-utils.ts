@@ -23,8 +23,41 @@ const localhostChain = JSON.parse(JSON.stringify(localhost));
 if (!env.VITE_PRODUCTION) {
     localhostChain.id = parseInt(import.meta.env.VITE_CHAIN_ID);
 }
-const localChains = [localhostChain, filecoinHyperspace];
-const productionChains = [filecoin, filecoinHyperspace];
+
+const filecoinCalibration: Chain = {
+    id: 314159,
+    name: 'Filecoin Calibration',
+    network: 'filecoin-calibration',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'testnet filecoin',
+        symbol: 'tFIL',
+    },
+    rpcUrls: {
+        default: {
+            http: ['https://api.calibration.node.glif.io/rpc/v1'],
+        },
+        public: {
+            http: ['https://api.calibration.node.glif.io/rpc/v1'],
+        },
+    },
+    blockExplorers: {
+        default: {
+            name: 'Filfox',
+            url: 'https://calibration.filfox.info/en',
+        },
+        filscan: {
+            name: 'Filscan',
+            url: 'https://calibration.filscan.io',
+        },
+    },
+};
+
+// Out
+const CLAIM_OFFSET = 0;
+
+const localChains = [localhostChain, filecoinHyperspace, filecoinCalibration];
+const productionChains = [filecoin, filecoinHyperspace, filecoinCalibration];
 const supportedChains = (
     env.VITE_PRODUCTION ? productionChains : localChains
 ) as Array<Chain>;
@@ -76,7 +109,7 @@ export function getRelease(address: string) {
     return {
         ...factoryContract,
         functionName: 'releaseAll',
-        args: [addr],
+        args: [addr, CLAIM_OFFSET],
     };
 }
 
@@ -85,18 +118,20 @@ export function formatReadContractResponse(
     pending: string | null
 ): DashboardWriteContractData {
     const statArray = data
-        ?.slice(0, 3)
+        ?.slice(0, 2)
         .map((item) => parseHexObject(item as HexResponse, true));
     const releasedContracts: DashboardContracts = {};
     const releasableContracts: DashboardContracts = {};
 
     const stats = {
         released: statArray[0],
-        shares: statArray[1],
-        releasable: statArray[2],
+        shares: (
+            parseFloat(statArray[0]) + parseFloat(statArray[1])
+        ).toString(),
+        releasable: statArray[1],
     };
 
-    const [contracts, releasable, released] = data[3];
+    const [contracts, releasable, released] = data[2];
     contracts.forEach((address: string, idx: number) => {
         // Ignore zero address
         if (parseInt(address) > 0) {
@@ -106,6 +141,7 @@ export function formatReadContractResponse(
                 funds: contractFunds,
                 checked: false,
                 pending: pending ? true : false,
+                index: idx,
             };
             if (parseFloat(contractFunds) === 0) {
                 contractItem.funds = parseHexObject(released[idx], true);
@@ -124,12 +160,7 @@ export function formatReadContractResponse(
 export function getUserInfo(address: string) {
     const functionReads: Array<object> = [];
 
-    const functionsToRead = [
-        'released',
-        'shares',
-        'releasable',
-        'releasablePerContract',
-    ];
+    const functionsToRead = ['released', 'releasable', 'releasablePerContract'];
 
     const addr = formatAddressForContract(address);
 
