@@ -101,6 +101,11 @@
                 "internalType": "uint256[]",
                 "name": "shares_",
                 "type": "uint256[]"
+            },
+            {
+                "internalType": "uint256",
+                "name": "totalValue",
+                "type": "uint256"
             }
         ],
         "outputs": [
@@ -196,6 +201,11 @@
                         "type": "bytes"
                     }
                 ]
+            },
+            {
+                "internalType": "uint256",
+                "name": "offset",
+                "type": "uint256"
             }
         ],
         "outputs": [],
@@ -216,9 +226,9 @@
                 ]
             },
             {
-                "internalType": "address[]",
-                "name": "selectPayouts",
-                "type": "address[]"
+                "internalType": "uint256[]",
+                "name": "indices",
+                "type": "uint256[]"
             }
         ],
         "outputs": [],
@@ -286,30 +296,6 @@
     },
     {
         "type": "function",
-        "name": "shares",
-        "inputs": [
-            {
-                "internalType": "struct CommonTypes.FilAddress",
-                "name": "account",
-                "type": "tuple",
-                "components": [
-                    {
-                        "type": "bytes"
-                    }
-                ]
-            }
-        ],
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "totalValue",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
         "name": "supportsInterface",
         "inputs": [
             {
@@ -343,19 +329,6 @@
     {
         "type": "function",
         "name": "totalReleased",
-        "inputs": [],
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "totalValue",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view"
-    },
-    {
-        "type": "function",
-        "name": "totalShares",
         "inputs": [],
         "outputs": [
             {
