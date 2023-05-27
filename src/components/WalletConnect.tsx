@@ -65,7 +65,7 @@ const WalletConnect = () => {
                 spacing="8"
             >
                 <Heading size="xl" color={'whiteAlpha.900'}>
-                    Claim your Saturn node earnings
+                    Claim Your Saturn Node Earnings
                 </Heading>
                 <Heading size="md" color={'whiteAlpha.900'}>
                     To begin, securely connect your Filecoin wallet below
