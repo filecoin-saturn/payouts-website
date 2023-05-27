@@ -99,7 +99,7 @@ const WalletConnect = () => {
                 <Box>
                     <Heading size="md" color={'whiteAlpha.900'}>
                         <Link href="https://docs.saturn.tech/claim-your-rewards">
-                            Documentation available here!{' '}
+                            Read more about claiming your Saturn earnings here{' '}
                             <ExternalLinkIcon mx="2px" />
                         </Link>
                     </Heading>
