@@ -65,10 +65,10 @@ const WalletConnect = () => {
                 spacing="8"
             >
                 <Heading size="xl" color={'whiteAlpha.900'}>
-                    Claim your Saturn node earnings
+                    Claim Your Saturn Node Earnings
                 </Heading>
                 <Heading size="md" color={'whiteAlpha.900'}>
-                    To begin, securely connect your Filecoin wallet below
+                    To begin, securely connect your Filecoin wallet below.
                 </Heading>
 
                 {connectors.map((connector) => (
@@ -99,7 +99,7 @@ const WalletConnect = () => {
                 <Box>
                     <Heading size="md" color={'whiteAlpha.900'}>
                         <Link href="https://docs.saturn.tech/claim-your-rewards">
-                            Documentation available here!{' '}
+                            Read more about claiming your Saturn earnings here{' '}
                             <ExternalLinkIcon mx="2px" />
                         </Link>
                     </Heading>
