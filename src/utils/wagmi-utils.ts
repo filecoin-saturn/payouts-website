@@ -83,7 +83,8 @@ export const client = createClient({
         new WalletConnectConnector({
             chains,
             options: {
-                qrcode: true,
+                projectId: '5f0af71da183cb109aa8c535404bdcb8',
+                version: '2',
             },
         }),
         new InjectedConnector({
