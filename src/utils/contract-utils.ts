@@ -34,6 +34,7 @@ const CONTRACT_OPTS = {
 };
 const production = import.meta.env.VITE_PRODUCTION;
 const ATTO_FIL = production ? 10 ** 18 : 1;
+const MAX_DECIMALS = 3;
 
 export interface HexResponse {
     _hex: string;
@@ -48,7 +49,7 @@ export function parseHexObject(
     if (convertToFil) {
         const removeTrailingZerosRegex = /0+$/;
         let value = (val / ATTO_FIL)
-            .toFixed(8)
+            .toFixed(MAX_DECIMALS)
             .replace(removeTrailingZerosRegex, '');
 
         const removeTrailingPeriodRegex = /\.(?!\d)/;
