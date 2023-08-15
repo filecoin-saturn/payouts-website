@@ -49,7 +49,7 @@ import InfoModal from './Modals/InfoModal';
 
 const env = import.meta.env;
 const CHAIN_ID = parseInt(env.VITE_CHAIN_ID);
-const FIL_BALANCE_MAX_DIGITS = 7;
+const FIL_BALANCE_MAX_DIGITS = 5;
 
 type Address = `0x${string}`;
 
@@ -95,7 +95,6 @@ const UserDashboard = (props: { address: string }) => {
     const { data, isLoading } = useContractReads({
         contracts: contractFuncs,
         select: (data) => formatReadContractResponse(data, pending),
-        watch: true,
     });
 
     useEffect(() => {
@@ -143,7 +142,7 @@ const UserDashboard = (props: { address: string }) => {
     const skeletonComp = <Skeleton height="20px" />;
 
     const loadingSkeleton = (
-        <Stack>
+        <Stack margin={'20px'}>
             <Skeleton height="20px" />
             <Skeleton height="20px" />
             <Skeleton height="20px" />
@@ -282,23 +281,7 @@ const UserDashboard = (props: { address: string }) => {
                                 display={'flex'}
                                 justifyContent="right"
                                 marginRight={12}
-                            >
-                                <Button
-                                    isLoading={txLoading || contractLoading}
-                                    isDisabled={
-                                        !fetchedData ||
-                                        hasZeroBalance ||
-                                        parseFloat(
-                                            fetchedData.stats.releasable
-                                        ) === 0
-                                    }
-                                    loadingText="Releasing Funds"
-                                    onClick={() => writeContract()}
-                                    float="right"
-                                >
-                                    Release All Funds
-                                </Button>
-                            </Box>
+                            ></Box>
 
                             <DataTable
                                 contracts={

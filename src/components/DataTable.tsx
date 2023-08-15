@@ -1,5 +1,6 @@
 import {
     Badge,
+    Box,
     Button,
     Checkbox,
     Heading,
@@ -52,6 +53,7 @@ const DataTable = (props: {
     const [pendingTransactions, setPendingTransactions] = useState<
         Array<PendingTransaction>
     >([]);
+    const [releaseAll, setReleaseAll] = useState<boolean>(false);
     const setErrorState = props.setErrorState;
 
     const releasedContracts = props.releasedContracts
@@ -180,8 +182,6 @@ const DataTable = (props: {
         contracts &&
         Object.values(contracts).filter((item: ContractItem) => item.pending);
 
-    console.log('Pending contracts', pendingContracts);
-
     const writeArgs = [
         formatAddressForContract(props.address),
         selectedContracts.map((item: ContractItem) => item.index),
@@ -208,6 +208,7 @@ const DataTable = (props: {
             transactionHash && addPendingTransaction(transactionHash);
             setDashboardTxLoading(false);
             setTxLoading(false);
+            setReleaseAll(false);
 
             try {
                 await data?.wait();
@@ -230,6 +231,12 @@ const DataTable = (props: {
             write();
         }
     };
+
+    useEffect(() => {
+        if (releaseAll) {
+            writeContract();
+        }
+    }, [releaseAll]);
 
     const releasableTableRows = Object.values(contracts).map((contract) => {
         return (
@@ -359,23 +366,44 @@ const DataTable = (props: {
             No funds available to show
         </Text>
     );
+
+    const releaseAllButton = (
+        <Box w="100%" display={'flex'} justifyContent="right">
+            <Button
+                isLoading={txLoading}
+                marginRight={6}
+                loadingText="Releasing Funds"
+                onClick={() => {
+                    selectAll();
+                    setReleaseAll(true);
+                }}
+                float="right"
+            >
+                Release All Funds
+            </Button>
+        </Box>
+    );
     return (
-        <TableContainer
-            width={'100%'}
-            mt={5}
-            rounded="md"
-            borderWidth="0.5px"
-            padding={4}
-        >
-            <Heading m={3} size="md">
-                Claimable Transactions
-            </Heading>
-            {isContracts ? contractsTable : noRowsText}
-            <Heading m={3} mt={8} size="md">
-                Transaction History
-            </Heading>
-            {isReleasedContracts ? releasedContractsTable : noRowsText}
-        </TableContainer>
+        <>
+            {isContracts && releaseAllButton}
+            <TableContainer
+                width={'100%'}
+                mt={5}
+                rounded="md"
+                borderWidth="0.5px"
+                padding={4}
+            >
+                <Heading m={3} size="md">
+                    Claimable Transactions
+                </Heading>
+
+                {isContracts ? contractsTable : noRowsText}
+                <Heading m={3} mt={8} size="md">
+                    Transaction History
+                </Heading>
+                {isReleasedContracts ? releasedContractsTable : noRowsText}
+            </TableContainer>
+        </>
     );
 };
 
