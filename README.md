@@ -3,18 +3,15 @@
 	 :european_post_office:
 	<br>
 	<br>
-	Contract Interface 
+	Saturn Payouts Website
 	<br>
 	<br>
 	<br>
 </h1>
 
-> Repo for interfaces to interact with our Smart Contract
-
-
 ## What is this 
 
-This repo is dedicated for the design of the interfaces used for interacting witht the Smart Contracts developed for the Saturn L1 Node operator payouts. 
+This is the repo behind payouts.saturn.tech, the website where node operators interact with Saturn's payout smart contract to receive their FIL payouts for network contributions.
 
 
 ## How To Use:
